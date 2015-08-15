@@ -1,0 +1,9 @@
+C:\Users\remix\Downloads\NetLibClient\Assets\Plugins\netLogic.dll
+C:\Users\remix\Downloads\NetLibClient\Assets\Plugins\netLogic.pdb
+C:\Users\remix\Downloads\NetLibClient\bin\netLogic.dll
+C:\Users\remix\Downloads\NetLibClient\bin\netLogic.pdb
+C:\Users\remix\Downloads\NetLibClient\obj\netLogic.Properties.Resources.resources
+C:\Users\remix\Downloads\NetLibClient\obj\netLogic.csproj.GenerateResource.Cache
+C:\Users\remix\Downloads\NetLibClient\obj\netLogic.dll
+C:\Users\remix\Downloads\NetLibClient\obj\netLogic.pdb
+C:\Users\remix\Downloads\NetLibClient\obj\netLogic.csprojResolveAssemblyReference.cache
