@@ -29,6 +29,7 @@ namespace netLogic
         }
     
     }
+
     public partial class netInstance : MonoBehaviour
     {
         #region Objects accessible to anyone
@@ -45,6 +46,7 @@ namespace netLogic
         public static WoWVersion wowVersion;           // WoW.exe / WoW.app version information
         public static WoWType wowType;                 // WoWtype. (win32, OSX - ppc or x86, etc)
         #endregion
+
         #region Internal stuff
         private static Boolean inited = false;
         public static Boolean _PlayerInited = false;
@@ -61,7 +63,6 @@ namespace netLogic
         public GameObject pass;
         public GameObject login;
         public GameObject scene;
-        public GameObject onExit;
         public GameObject _instance;
         public string levelName = "";
         public string username;
@@ -72,20 +73,8 @@ namespace netLogic
         void Awake()
         {
             Loom.CreateThreadPoolScheduler();
-            /*Loom.CreateThreadPoolScheduler();
-            _instance = new GameObject("_instance");
-            _instance.AddComponent<netInstance>();
-            _instance.GetComponent<netInstance>().InitCore(EventHandler);
-            DontDestroyOnLoad(_instance);
-*/
-            onExit = new GameObject("OnExit");
-            onExit.gameObject.AddComponent<OnExit>();
-            DontDestroyOnLoad(onExit.gameObject);
             InitCore(EventHandler);
-
             DontDestroyOnLoad(this);
-            
-
         }
 
         // Use this for initialization
@@ -110,8 +99,6 @@ namespace netLogic
 
 
         public delegate void myEvent(Realm[] rlist);
-
-
 
         static void HandleChatMsg(ChatMsg msg, string v1, string v2, string v3)
         {
@@ -165,13 +152,11 @@ namespace netLogic
 
         void OnApplicationQuit()
         {
-            Global.GetInstance().Disconnect();
+            Global.GetInstance().GetLSession().HardDisconnect();
+            Global.GetInstance().GetWSession().HardDisconnect();
         }
 
         #endregion
-
-
-
 
         #region Initialize the Core :D
         public void InitCore(CallBackEvent e)
@@ -346,8 +331,6 @@ namespace netLogic
         public CombatMgr CombatMgr()                 {  return combatMgr; } 
         public Player Player()                       {  return player; } 
         #endregion
-
-
 
 
         public static String WowTypeString

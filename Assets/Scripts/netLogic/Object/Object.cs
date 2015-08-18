@@ -144,9 +144,9 @@ namespace netLogic
 
         #region Public vars
         public UpdateFlags UpdateFlags { get; private set; }
-        public MovementFlags Flags { get; private set; }
-        public MovementFlags2 Flags2 { get; private set; }
-        public uint TimeStamp { get; private set; }
+        public MovementFlags Flags { get;  set; }
+        public MovementFlags2 Flags2 { get;  set; }
+        public uint TimeStamp { get; set; }
         public Vector3 Position { get; set; }
         public float Facing { get; private set; }
         public TransportInfo Transport { get; private set; }
@@ -297,13 +297,14 @@ namespace netLogic
             {
                 if (UpdateFlags.HasFlag(UpdateFlags.UPDATEFLAG_GO_POSITION))
                 {
+                    Transport = new TransportInfo();
                     Transport.Guid = gr.ReadPackedGuid();
                     Position = gr.ReadCoords3();
                     Transport.Position = gr.ReadCoords3();
                     Facing = gr.ReadSingle();
                     Transport.Facing = gr.ReadSingle();
-                    if (obj && obj.IsWorldObject())
-                        ((WorldObject)obj).SetCoordinates(Position);
+                    if (obj && obj.IsGameObject())
+                        ((GO)obj).SetCoordinates(Position);
                 }
                 else if (UpdateFlags.HasFlag(UpdateFlags.UPDATEFLAG_HAS_POSITION))
                 {

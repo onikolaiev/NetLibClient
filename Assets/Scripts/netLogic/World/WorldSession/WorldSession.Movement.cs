@@ -11,6 +11,7 @@ using System.Resources;
 using netLogic.Shared;
 using netLogic.Network;
 using netLogic.Constants;
+using UnityEngine;
 
 namespace netLogic
 {
@@ -33,102 +34,55 @@ namespace netLogic
         [PacketHandlerAtribute(WorldServerOpCode.MSG_MOVE_SET_RUN_MODE)]
         [PacketHandlerAtribute(WorldServerOpCode.MSG_MOVE_SET_WALK_MODE)]
         [PacketHandlerAtribute(WorldServerOpCode.MSG_MOVE_TOGGLE_LOGGING)]
-        [PacketHandlerAtribute(WorldServerOpCode.MSG_MOVE_TELEPORT)]
-        [PacketHandlerAtribute(WorldServerOpCode.MSG_MOVE_TELEPORT_CHEAT)]
-        [PacketHandlerAtribute(WorldServerOpCode.MSG_MOVE_TELEPORT_ACK)]
+
         [PacketHandlerAtribute(WorldServerOpCode.MSG_MOVE_TOGGLE_FALL_LOGGING)]
         [PacketHandlerAtribute(WorldServerOpCode.MSG_MOVE_FALL_LAND)]
         [PacketHandlerAtribute(WorldServerOpCode.MSG_MOVE_START_SWIM)]
         [PacketHandlerAtribute(WorldServerOpCode.MSG_MOVE_STOP_SWIM)]
         [PacketHandlerAtribute(WorldServerOpCode.MSG_MOVE_HEARTBEAT)]
+        [PacketHandlerAtribute(WorldServerOpCode.MSG_MOVE_SET_FACING)]
         public void HandleAnyMove(PacketIn packet)
         {
-            /*ulong guid = packet.ReadPackedGuid();
-            MMOObject obj = netLogicCore.ObjectMgr.GetMMOObjectByGuid(guid);
-            if (obj != null)
-            {
-                var movement = MovementInfo.Read(packet);
-                obj.SetNewMovement(movement);
-            }*/
             byte mask = packet.ReadByte();
-
             GameGuid guid = new GameGuid(mask, packet.ReadBytes(GameGuid.BitCount8(mask)));
-            GetInstance().ObjMgr().GetObj(guid);
-            //netLogicCore.ObjectMgr.GetObject(guid).SetNewMovement(MovementInfo.Read(packet));
-          /*  if (obj != null)
-            {
-                obj.coord = new Coordinate(packet.ReadFloat(), packet.ReadFloat(), packet.ReadFloat());
-            }*/
+            GetInstance().ObjMgr().GetObj(guid).Flags = (MovementFlags)packet.ReadUInt32();
+            GetInstance().ObjMgr().GetObj(guid).Flags2 = (MovementFlags2)packet.ReadUInt16();
+            GetInstance().ObjMgr().GetObj(guid).TimeStamp = packet.ReadUInt32();
+            GetInstance().ObjMgr().GetObj(guid).transform.position = packet.ReadCoords3();
+            GetInstance().ObjMgr().GetObj(guid).transform.rotation = new Quaternion(0,packet.ReadFloat(),0,0);
+            packet.ReadUInt32();
         }
-       
+
+        [PacketHandlerAtribute(WorldServerOpCode.MSG_MOVE_TELEPORT)]
+        [PacketHandlerAtribute(WorldServerOpCode.MSG_MOVE_TELEPORT_CHEAT)]
+        [PacketHandlerAtribute(WorldServerOpCode.MSG_MOVE_TELEPORT_ACK)]
+        public void HandleTeleport(PacketIn packet)
+        {
+            byte mask = packet.ReadByte();
+            GameGuid guid = new GameGuid(mask, packet.ReadBytes(GameGuid.BitCount8(mask)));
+            GetInstance().ObjMgr().GetObj(guid).Flags = (MovementFlags)packet.ReadUInt32();
+            GetInstance().ObjMgr().GetObj(guid).Flags2 = (MovementFlags2)packet.ReadUInt32();
+            packet.ReadUInt16();
+            GetInstance().ObjMgr().GetObj(guid).TimeStamp = packet.ReadUInt32();
+            GetInstance().ObjMgr().GetObj(guid).transform.position = packet.ReadCoords3();
+            GetInstance().ObjMgr().GetObj(guid).transform.rotation = new Quaternion(0,packet.ReadFloat(),0,0);
+            packet.ReadUInt32();
+        }
+
+
+
         [PacketHandlerAtribute(WorldServerOpCode.SMSG_MONSTER_MOVE)]
         public void HandleMonsterMove(PacketIn packet)
         {
-           /* ulong guid = packet.ReadPackedGuid();
-            MMOObject obj = netLogicCore.ObjectMgr.GetMMOObjectByGuid(guid);
-            if (obj != null)
-            {
-                var movement = MovementInfo.Read(packet);
-                obj.SetNewMovement(movement);
-            }*/
-            
-         //   byte mask = packet.ReadByte();
-
-          //  WoWGuid guid = new WoWGuid(mask, packet.ReadBytes(WoWGuid.BitCount8(mask)));
             byte mask = packet.ReadByte();
-
             GameGuid guid = new GameGuid(mask, packet.ReadBytes(GameGuid.BitCount8(mask)));
-            
-            Unit u = (Unit)GetInstance().ObjMgr().GetObj(guid);
-           // u.SetCoordinates(MovementInfo.Read(packet).Position);
-
-
-
-            //netLogicCore.ObjectMgr.GetObject(guid).SetNewMovement(MovementInfo.Read(packet));
-            /*
-            MMOObject obj = netLogicCore.ObjectMgr.GetMMOObjectByGuid(guid);
-            if (obj != null)
-            {
-                obj.coord = new Coordinate(packet.ReadFloat(), packet.ReadFloat(), packet.ReadFloat());
-            }*/
+            GetInstance().ObjMgr().GetObj(guid).Flags = (MovementFlags)packet.ReadUInt32();
+            GetInstance().ObjMgr().GetObj(guid).Flags2 = (MovementFlags2)packet.ReadUInt16();
+            GetInstance().ObjMgr().GetObj(guid).TimeStamp = packet.ReadUInt32();
+            GetInstance().ObjMgr().GetObj(guid).transform.position = packet.ReadCoords3();
+            GetInstance().ObjMgr().GetObj(guid).transform.rotation = new Quaternion(0, packet.ReadFloat(), 0, 0);
+            packet.ReadUInt32();
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         void Heartbeat(object source, ElapsedEventArgs e)
         {

@@ -302,6 +302,16 @@
     <Compile Include="Assets\Scripts\netLogic\Crypt\Sha1Warden.cs" />
     <Compile Include="Assets\Scripts\netLogic\Crypt\Srp6.cs" />
     <Compile Include="Assets\Scripts\netLogic\Crypt\WoWCrypt.cs" />
+    <Compile Include="Assets\Scripts\netLogic\Game\ChLoad.cs" />
+    <Compile Include="Assets\Scripts\netLogic\Game\PlayerAnimationController.cs" />
+    <Compile Include="Assets\Scripts\netLogic\Game\PlayerCharacterController.cs" />
+    <Compile Include="Assets\Scripts\netLogic\Game\PlayerEnums.cs" />
+    <Compile Include="Assets\Scripts\netLogic\Game\PlayerIdentity.cs" />
+    <Compile Include="Assets\Scripts\netLogic\Game\PlayerPosition.cs" />
+    <Compile Include="Assets\Scripts\netLogic\Game\PlayerRotation.cs" />
+    <Compile Include="Assets\Scripts\netLogic\Game\PlayerSetup.cs" />
+    <Compile Include="Assets\Scripts\netLogic\Game\PlayerShoot.cs" />
+    <Compile Include="Assets\Scripts\netLogic\Game\ThirdPersonCameraController.cs" />
     <Compile Include="Assets\Scripts\netLogic\Mgr\CombatMgr.cs" />
     <Compile Include="Assets\Scripts\netLogic\Mgr\MapMgr.cs" />
     <Compile Include="Assets\Scripts\netLogic\Mgr\MovementMgr.cs" />
@@ -378,16 +388,6 @@
     <Compile Include="Assets\Scripts\onConnectToRealm.cs" />
     <Compile Include="Assets\Scripts\onGetRealmList.cs" />
     <Compile Include="Assets\Scripts\onWorldConnect.cs" />
-    <Compile Include="Assets\Scripts\scenes\ChLoad.cs" />
-    <Compile Include="Assets\Scripts\scenes\PlayerAnimationController.cs" />
-    <Compile Include="Assets\Scripts\scenes\PlayerCharacterController.cs" />
-    <Compile Include="Assets\Scripts\scenes\PlayerEnums.cs" />
-    <Compile Include="Assets\Scripts\scenes\PlayerIdentity.cs" />
-    <Compile Include="Assets\Scripts\scenes\PlayerPosition.cs" />
-    <Compile Include="Assets\Scripts\scenes\PlayerRotation.cs" />
-    <Compile Include="Assets\Scripts\scenes\PlayerSetup.cs" />
-    <Compile Include="Assets\Scripts\scenes\PlayerShoot.cs" />
-    <Compile Include="Assets\Scripts\scenes\ThirdPersonCameraController.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\NGUI\Examples\Atlases\Fantasy\Fantasy Font - Normal.txt" />

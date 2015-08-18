@@ -3,8 +3,9 @@
 /// Character Controller in CSharp v2.3 
 /// </summary> 
 using UnityEngine;
+using netLogic;
 
-public class PlayerCharacterController : MonoBehaviour
+public class PlayerCharacterController : netInstance
 { 
              
     //Var definition 

@@ -251,9 +251,9 @@ namespace netLogic
 
         public void StartHeartbeat()
         {
-            aTimer.Elapsed += new ElapsedEventHandler(Heartbeat);
-            aTimer.Interval = 3000;
-            aTimer.Enabled = true;
+          //  aTimer.Elapsed += new ElapsedEventHandler(Heartbeat);
+           // aTimer.Interval = 3000;
+          //  aTimer.Enabled = true;
         }
 
         public void HandlePacket(PacketIn packet)

@@ -21,22 +21,9 @@ namespace netLogic
     public partial class WorldSession :MonoBehaviour
     {
         public GameObject list;
-        
-        OnExit onExit;
-        #region Unity Logic
-        void Start()
-        {
-
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
 
 
-        }
 
-        #endregion
 
         #region Auth handlers
         [PacketHandlerAtribute(WorldServerOpCode.SMSG_AUTH_CHALLENGE)]
@@ -252,8 +239,8 @@ namespace netLogic
         {
             
             PlayerEnum chr = _myPlayerEnum;
-            
-            
+
+            GetInstance().GetLSession().Disconnect();
 
             _OnEnterWorld();
             

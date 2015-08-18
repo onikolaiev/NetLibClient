@@ -285,8 +285,8 @@ namespace netLogic
 
             OBJECT_TYPE_ID objectTypeId = (OBJECT_TYPE_ID)gr.ReadByte();
 
-            var obj = GetInstance().ObjMgr().GetObj(guid);
-            if (obj&& !obj.IsPlayer()) { GetInstance().ObjMgr().Remove(guid); Destroy(GameObject.Find(guid.ToString())); }
+        //    var obj = GetInstance().ObjMgr().GetObj(guid);
+       //     if (obj&& !obj.IsPlayer()) { GetInstance().ObjMgr().Remove(guid); Destroy(GameObject.Find(guid.ToString())); }
             switch (objectTypeId)
             {
                 case OBJECT_TYPE_ID.TYPEID_OBJECT:
@@ -310,12 +310,12 @@ namespace netLogic
                     break;
 
                 case OBJECT_TYPE_ID.TYPEID_UNIT:
-                    GameObject _unit = new GameObject();
+                    GameObject _unit = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                     _unit.AddComponent<Unit>();
                     Unit u = _unit.GetComponent<Unit>();
                     u.Create(guid);
                     GetInstance().ObjMgr().Add(u);
-                    CreatureQuery(u.GetGUID(), u.GetEntry());
+                    
                     break;
 
                 case OBJECT_TYPE_ID.TYPEID_PLAYER:
@@ -325,7 +325,8 @@ namespace netLogic
                     }
                     else
                     {
-                        GameObject _goup = GameObject.FindWithTag("Player");
+                        GameObject _goup = GameObject.CreatePrimitive(PrimitiveType.Cube);
+
                         _goup.AddComponent<Player>();
                         //if (netInstance._PlayerInited) Instantiate(_goup); else netInstance._PlayerInited = true;
 
@@ -341,8 +342,9 @@ namespace netLogic
                     GameObject _goug = GameObject.CreatePrimitive(PrimitiveType.Capsule);
                     _goug.AddComponent<GO>();
                     GO go = _goug.GetComponent<GO>();
+                    go.Create(guid);
                     GetInstance().ObjMgr().Add(go);
-                    ObjectQuery(go.GetGUID(), go.GetEntry());
+              //      ObjectQuery(go.GetGUID(), go.GetEntry());
                     break;
 
                 case OBJECT_TYPE_ID.TYPEID_DYNAMICOBJECT:
@@ -362,10 +364,20 @@ namespace netLogic
             }
 
             Object _o = GetInstance().ObjMgr().GetObj(guid);
+
             _o.ReadMov(gr);
             if (_o)
             {
                 _o.ReadUpd(gr);
+                if (_o.IsUnit())
+                {
+                    CreatureQuery(_o.GetGUID(), _o.GetEntry());
+                }
+                else if (_o.IsGameObject())
+                {
+                    ObjectQuery(_o.GetGUID(), _o.GetEntry());
+                }
+
             }
             else
             {
@@ -491,7 +503,7 @@ namespace netLogic
         {
             PacketOut packet = new PacketOut(WorldServerOpCode.CMSG_GAMEOBJECT_QUERY);
             packet.Write(entry);
-            packet.Write(guid.GetNewGuid());
+            packet.Write(guid.GetOldGuid());
             Send(packet);
         }
 

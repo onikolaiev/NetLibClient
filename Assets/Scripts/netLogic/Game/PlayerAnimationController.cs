@@ -1,11 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
+using netLogic;
 
 // Require these components when using this script
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(PlayerCharacterController))]
-public class PlayerAnimationController : MonoBehaviour
+public class PlayerAnimationController : netInstance
 {
     public float animSpeed = 1.0f;				        // a public setting for overall animator animation speed
     public bool useCurves;

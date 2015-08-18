@@ -1,8 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using netLogic;
+using netLogic.Network;
+using System.Timers;
+using netLogic.Constants;
+using System;
+using System.Runtime.InteropServices;
 
-public class PlayerPosition : MonoBehaviour 
+public class PlayerPosition : netInstance 
 {
     private Vector3 syncPos;
 
@@ -17,6 +23,8 @@ public class PlayerPosition : MonoBehaviour
 
     private List<Vector3> syncPosQue = new List<Vector3>();
     private float minQueuedApproachDist = 0.1f;
+    [DllImport("winmm.dll", EntryPoint = "timeGetTime")]
+    public static extern uint MM_GetTime();
 
     private bool useQueuedInterpolation = false;
 
@@ -66,6 +74,7 @@ public class PlayerPosition : MonoBehaviour
             // Debug.Log("ClientCallback:SendPosition()");
             CmdSendPosition(playerTransform.position);
             lastPos = playerTransform.position;
+            Heartbeat(playerTransform.gameObject);
             // Debug.Log(playerTransform.position.ToString());
         }
     }
@@ -79,8 +88,38 @@ public class PlayerPosition : MonoBehaviour
     void StandardInterpolation()
     {
         playerTransform.position = Vector3.Lerp(playerTransform.position, syncPos, Time.deltaTime * posLerpRate);
+
+        Heartbeat(playerTransform.gameObject);
+    
+    
     }
 
+    private static float swapByteOrder(float value)
+    {
+        Byte[] buffer = BitConverter.GetBytes(value);
+        Array.Reverse(buffer, 0, buffer.Length);
+        return BitConverter.ToSingle(buffer, 0);
+    }
+
+    void Heartbeat(GameObject _go)
+    {
+        MyCharacter _ch = Global.GetInstance().GetWSession().GetMyChar();
+        Loom.DispatchToMainThread(() =>
+        {
+            Vector3 pos = new Vector3(_ch.transform.position.x, _ch.transform.position.y, _ch.transform.position.z);
+            PacketOut packet = new PacketOut(WorldServerOpCode.MSG_MOVE_HEARTBEAT);
+            packet.WritePackedUInt64(_ch.GetGUID().GetOldGuid());
+            packet.Write((UInt32)_ch.Flags);
+            packet.Write((UInt16)_ch.Flags2);
+            packet.Write(MM_GetTime());
+            packet.Write(pos.x);
+            packet.Write(pos.y);
+            packet.Write(pos.z);
+            packet.Write(_ch.transform.rotation.y);
+            packet.Write((UInt32)0);
+            Global.GetInstance().GetWSession().Send(packet);
+        });
+    }
     void QueuedInterpolation()
     {
         // Only lerp if we have a destination
