@@ -82,7 +82,11 @@ namespace netLogic.Network
                          try
                          {
                              data = OnReceive(tSocket.Available);
-                             tClient.HandlePacket(new PacketIn(data, true));
+                             PacketIn packet = new PacketIn(data,true);
+                            // Loom.DispatchToMainThread(() =>
+                            // {
+                                 tClient.HandlePacket(packet);
+                            // });
                          }
                          catch (Exception ex)    // Server dc'd us most likely ;P
                          {

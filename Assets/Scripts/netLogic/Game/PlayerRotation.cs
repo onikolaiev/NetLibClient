@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using netLogic;
 
-public class PlayerRotation : MonoBehaviour
+public class PlayerRotation : netInstance
 {
 
     private float syncPlayerRot;
@@ -99,6 +100,7 @@ public class PlayerRotation : MonoBehaviour
     {
         var playerRotation = new Vector3(0, playerRot, 0);
         playerTransform.rotation = Quaternion.Lerp(playerTransform.rotation, Quaternion.Euler(playerRotation), rotLerpRate * Time.deltaTime);
+        
     }
 
 
@@ -119,6 +121,7 @@ public class PlayerRotation : MonoBehaviour
                 lastCameraRot = cameraTransform.localEulerAngles.x;
 
                 CmdSendRotations(lastPlayerRot, lastCameraRot);
+                Global.GetInstance().GetWSession().SetFacing();
             }
         }
     }

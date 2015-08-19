@@ -175,7 +175,7 @@ namespace netLogic
         public float speedFlyBack { get; private set; }
         public float speedTurn { get; private set; }
         public float speedPitchRate { get; private set; }
-
+        private ulong MoveFlags = 0;
 
 
 
@@ -230,17 +230,17 @@ namespace netLogic
                 TimeStamp = gr.ReadUInt32();
 
                 Position = gr.ReadCoords3();
-                Facing = gr.ReadSingle();
+                Facing = gr.ReadSingle()*Mathf.Rad2Deg;
 
                 if (obj.IsUnit() || obj.IsPlayer() || obj)
                     ((WorldObject)obj).SetCoordinates(Position);
 
-                if (Flags.HasFlag(MovementFlags.ONTRANSPORT))
+                if (Flags.HasFlag(MovementFlags.OnTransport))
                 {
                     Transport = TransportInfo.Read(gr, Flags2);
                 }
 
-                if (Flags.HasFlag(MovementFlags.SWIMMING) || Flags.HasFlag(MovementFlags.FLYING) ||
+                if (Flags.HasFlag(MovementFlags.Swimming) || Flags.HasFlag(MovementFlags.Flying) ||
                     Flags2.HasFlag(MovementFlags2.AlwaysAllowPitching))
                 {
                     Pitch = gr.ReadSingle();
@@ -248,7 +248,7 @@ namespace netLogic
 
                 FallTime = gr.ReadUInt32();
 
-                if (Flags.HasFlag(MovementFlags.FALLING))
+                if (Flags.HasFlag(MovementFlags.Falling))
                 {
                     FallVelocity = gr.ReadSingle();
                     FallCosAngle = gr.ReadSingle();
@@ -256,7 +256,7 @@ namespace netLogic
                     FallSpeed = gr.ReadSingle();
                 }
 
-                if (Flags.HasFlag(MovementFlags.SPLINEELEVATION))
+                if (Flags.HasFlag(MovementFlags.SplineElevation))
                 {
                     SplineElevation = gr.ReadSingle();
                 }
@@ -288,7 +288,7 @@ namespace netLogic
                 u.SetSpeed(UnitMoveType.MOVE_PITCH_RATE, speedPitchRate);
 
 
-                if (Flags.HasFlag(MovementFlags.SPLINEENABLED))
+                if (Flags.HasFlag(MovementFlags.SplineEnabled))
                 {
                     Spline = SplineInfo.Read(gr);
                 }
@@ -301,15 +301,15 @@ namespace netLogic
                     Transport.Guid = gr.ReadPackedGuid();
                     Position = gr.ReadCoords3();
                     Transport.Position = gr.ReadCoords3();
-                    Facing = gr.ReadSingle();
-                    Transport.Facing = gr.ReadSingle();
+                    Facing = gr.ReadSingle() * Mathf.Rad2Deg;
+                    Transport.Facing = gr.ReadSingle() * Mathf.Rad2Deg;
                     if (obj && obj.IsGameObject())
                         ((GO)obj).SetCoordinates(Position);
                 }
                 else if (UpdateFlags.HasFlag(UpdateFlags.UPDATEFLAG_HAS_POSITION))
                 {
                     Position = gr.ReadCoords3();
-                    Facing = gr.ReadSingle();
+                    Facing = gr.ReadSingle() * Mathf.Rad2Deg;
                     if (obj && obj.IsWorldObject())
                         ((WorldObject)obj).SetCoordinates(Position);
                 }
@@ -408,6 +408,20 @@ namespace netLogic
             else Data.Add(index, (UInt32)value);
         }
 
+
+
+        public void SetMoveFlag(MovementFlags flag)
+        {
+            Flags |= flag;
+        }
+        public void UnSetMoveFlag(MovementFlags flag)
+        {
+            Flags &= ~flag;
+        }
+        public bool IsMoveFlagSet(MovementFlags flag)
+        {
+            return Flags.HasFlag(flag) ? true : false;
+        }
         #endregion
 
 

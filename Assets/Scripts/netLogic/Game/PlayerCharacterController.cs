@@ -43,7 +43,7 @@ public class PlayerCharacterController : netInstance
         if (true)
         {
             //Set idel animation 
-            moveState = PlayerEnums.MovementState.Idle;
+       //     moveState = PlayerEnums.MovementState.Idle;
             isWalking = true;
 
             // Hold "Run" to run 
@@ -99,13 +99,28 @@ public class PlayerCharacterController : netInstance
                 {
                     isJumping = true;
                     moveDirection.y = jumpSpeed;
+                    Global.GetInstance().GetWSession().MoveJump();
                 }
 
                 //moveState normal movement (for animations)               
                 if ((moveDirection.x == 0) && (moveDirection.z == 0))
+                {
+                    if (moveState != PlayerEnums.MovementState.Idle) 
+                    { 
+                        Global.GetInstance().GetWSession().StopMoveForward(); Global.GetInstance().GetWSession().StopHeartbeat();
+                        Global.GetInstance().GetWSession().GetMyChar().SetMoveFlag(netLogic.Constants.MovementFlags.None);
+                    }
                     moveState = PlayerEnums.MovementState.Idle;
+                    
+                }
                 if (moveDirection.z > 0)
+                {
+                    if (moveState != PlayerEnums.MovementState.Walking && moveState != PlayerEnums.MovementState.Running) { Global.GetInstance().GetWSession().StartMoveForward(); Global.GetInstance().GetWSession().StartHeartbeat(); }
+                    
                     moveState = isWalking ? PlayerEnums.MovementState.Walking : PlayerEnums.MovementState.Running;
+                    
+                }
+
                 if (moveDirection.z < 0)
                     moveState = isWalking ? PlayerEnums.MovementState.WalkingBack : PlayerEnums.MovementState.RunningBack;
                 if (moveDirection.x > 0)
@@ -170,5 +185,13 @@ public class PlayerCharacterController : netInstance
         }
 
         // Debug.Log(moveState.ToString());
+    }
+    void LateUpdate()
+    {
+        if (isJumping && isSwimming)
+        {
+            moveState = PlayerEnums.MovementState.SwimmingUp;
+        }
+            
     }
 } 

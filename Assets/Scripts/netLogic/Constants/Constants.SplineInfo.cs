@@ -37,17 +37,17 @@ namespace netLogic.Constants
             var spline = new SplineInfo();
             spline.Flags = (SplineFlags)gr.ReadUInt32();
 
-            if (spline.Flags.HasFlag(SplineFlags.FINALPOINT))
+            if (spline.Flags.HasFlag(SplineFlags.FinalFacePoint))
             {
                 spline.Point = gr.ReadCoords3();
             }
 
-            if (spline.Flags.HasFlag(SplineFlags.FINALTARGET))
+            if (spline.Flags.HasFlag(SplineFlags.FinalFaceTarget))
             {
                 spline.Guid = gr.ReadUInt64();
             }
 
-            if (spline.Flags.HasFlag(SplineFlags.FINALORIENT))
+            if (spline.Flags.HasFlag(SplineFlags.FinalFaceAngle))
             {
                 spline.Rotation = gr.ReadSingle();
             }

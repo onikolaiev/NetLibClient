@@ -9,6 +9,7 @@ using netLogic.Constants;
 using System.IO;
 using UnityEngine;
 using netLogic;
+using System.Threading;
 
 
 
@@ -285,8 +286,6 @@ namespace netLogic
 
             OBJECT_TYPE_ID objectTypeId = (OBJECT_TYPE_ID)gr.ReadByte();
 
-        //    var obj = GetInstance().ObjMgr().GetObj(guid);
-       //     if (obj&& !obj.IsPlayer()) { GetInstance().ObjMgr().Remove(guid); Destroy(GameObject.Find(guid.ToString())); }
             switch (objectTypeId)
             {
                 case OBJECT_TYPE_ID.TYPEID_OBJECT:

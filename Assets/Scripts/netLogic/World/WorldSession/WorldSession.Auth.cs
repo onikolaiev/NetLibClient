@@ -165,9 +165,10 @@ namespace netLogic
 
 
             Log.WriteLine(netLogic.Shared.LogType.Success, "Received info about {0} characters", count);
-            LevelManager.Load("CharactersList"); 
+            
 
-            //PingLoop();
+            PingLoop();
+            LevelManager.Load("CharactersList"); 
         }
 
         #endregion

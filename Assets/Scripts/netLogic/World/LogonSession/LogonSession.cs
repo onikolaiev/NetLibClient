@@ -280,6 +280,7 @@ namespace netLogic
             if (packetIn.ReadByte() == 0x00)
             {
                 Log.WriteLine(LogType.Success, "Authenitcation successed. Requesting RealmList");
+                netInstance.Event(new Event(EventType.EVENT_OK, "0", new object[] { "Succesfally connected" }));
 
                 //Retail server sends a loooooot of informations there!
                 RequestRealmlist();
@@ -289,6 +290,7 @@ namespace netLogic
             }
             else {
                 Log.WriteLine(LogType.Error, "Authenitcation filed. Wrong information");
+                netInstance.Event(new Event(EventType.EVENT_AUTH_FALSE, "0", new object[] { "Authenitcation filed. Wrong information" }));
                 pLoop.Stop();
                 Global.GetInstance().Disconnect();
             }

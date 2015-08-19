@@ -49,7 +49,7 @@ namespace netLogic
             GetInstance().ObjMgr().GetObj(guid).Flags2 = (MovementFlags2)packet.ReadUInt16();
             GetInstance().ObjMgr().GetObj(guid).TimeStamp = packet.ReadUInt32();
             GetInstance().ObjMgr().GetObj(guid).transform.position = packet.ReadCoords3();
-            GetInstance().ObjMgr().GetObj(guid).transform.rotation = new Quaternion(0,packet.ReadFloat(),0,0);
+            GetInstance().ObjMgr().GetObj(guid).transform.rotation = Quaternion.Euler(0, packet.ReadFloat() * Mathf.Rad2Deg * -1, 0);
             packet.ReadUInt32();
         }
 
@@ -65,7 +65,7 @@ namespace netLogic
             packet.ReadUInt16();
             GetInstance().ObjMgr().GetObj(guid).TimeStamp = packet.ReadUInt32();
             GetInstance().ObjMgr().GetObj(guid).transform.position = packet.ReadCoords3();
-            GetInstance().ObjMgr().GetObj(guid).transform.rotation = new Quaternion(0,packet.ReadFloat(),0,0);
+            GetInstance().ObjMgr().GetObj(guid).transform.rotation = Quaternion.Euler(0, packet.ReadFloat() * Mathf.Rad2Deg * -1, 0);
             packet.ReadUInt32();
         }
 
@@ -80,30 +80,71 @@ namespace netLogic
             GetInstance().ObjMgr().GetObj(guid).Flags2 = (MovementFlags2)packet.ReadUInt16();
             GetInstance().ObjMgr().GetObj(guid).TimeStamp = packet.ReadUInt32();
             GetInstance().ObjMgr().GetObj(guid).transform.position = packet.ReadCoords3();
-            GetInstance().ObjMgr().GetObj(guid).transform.rotation = new Quaternion(0, packet.ReadFloat(), 0, 0);
+            GetInstance().ObjMgr().GetObj(guid).transform.rotation = Quaternion.Euler(0, packet.ReadFloat() * Mathf.Rad2Deg * -1, 0);
             packet.ReadUInt32();
         }
 
-        void Heartbeat(object source, ElapsedEventArgs e)
+
+        public void StartMoveForward()
+        {
+            BuildMovePacket(WorldServerOpCode.MSG_MOVE_START_FORWARD);
+        }
+
+        public void HeartBeat(object source, ElapsedEventArgs e)
+        {
+            BuildMovePacket(WorldServerOpCode.MSG_MOVE_HEARTBEAT);
+        }
+
+        public void HeartBeat()
+        {
+            BuildMovePacket(WorldServerOpCode.MSG_MOVE_HEARTBEAT);
+        }
+
+        public void StopMoveForward()
+        {
+            BuildMovePacket(WorldServerOpCode.MSG_MOVE_STOP);
+        }
+
+        public void SetFacing()
+        {
+            BuildMovePacket(WorldServerOpCode.MSG_MOVE_SET_FACING);
+        }
+
+        public void MoveJump()
+        {
+            BuildMovePacket(WorldServerOpCode.MSG_MOVE_JUMP);
+        }
+
+        public void BuildMovePacket(WorldServerOpCode op)
+        {
+            BuildMovePacket(op, GetMyChar());
+        }
+
+        public void BuildMovePacket(WorldServerOpCode op, MyCharacter _ch)
         {
             Loom.DispatchToMainThread(() =>
             {
-                MyCharacter _ch = GetMyChar();
-                PacketOut packet = new PacketOut(WorldServerOpCode.MSG_MOVE_HEARTBEAT);
-                packet.Write(_ch.HighGuid);
-                packet.Write((UInt64)_ch.Flags);
-                packet.Write((byte)0);
+                PacketOut packet = new PacketOut(op);
+                packet.WritePackedUInt64(_ch.GetGUID().GetOldGuid());
+                packet.Write((UInt32)_ch.Flags);
+                packet.Write((UInt16)_ch.Flags2);
                 packet.Write((UInt32)MM_GetTime());
                 packet.Write(_ch.transform.position.x);
                 packet.Write(_ch.transform.position.z);
                 packet.Write(_ch.transform.position.y);
-                packet.Write(_ch.transform.rotation.y);
+                packet.Write(_ch.transform.rotation.eulerAngles.y * Mathf.Deg2Rad * -1);
                 packet.Write((UInt32)0);
                 Send(packet);
-            });
+            }
+            );
+        
         }
 
-        
+
+
+
+
+
 
 
         //////////////////////////////////////////////////////////

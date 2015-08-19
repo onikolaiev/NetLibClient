@@ -5,9 +5,11 @@ public class LevelManager : MonoBehaviour
 {
     public static void Load(string name)
     {
-        GameObject go = new GameObject("LevelManager");
-        LevelManager instance = go.AddComponent<LevelManager>();
-        instance.StartCoroutine(instance.InnerLoad(name));
+        Loom.DispatchToMainThread(() => {
+            GameObject go = new GameObject("LevelManager");
+            LevelManager instance = go.AddComponent<LevelManager>();
+            instance.StartCoroutine(instance.InnerLoad(name));
+        });
     }
 
     IEnumerator InnerLoad(string name)

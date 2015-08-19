@@ -17,6 +17,11 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# Unity meta files
+*.meta
+*.log
+
+
 # =========================
 # Operating System Files
 # =========================
@@ -41,3 +46,5 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+Temp
+obj

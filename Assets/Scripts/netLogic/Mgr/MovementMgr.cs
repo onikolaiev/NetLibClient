@@ -40,7 +40,7 @@ namespace netLogic
         {
             try
             {
-                Flag.SetMoveFlag(MovementFlags.NONE);
+                Flag.SetMoveFlag(MovementFlags.None);
                 lastUpdateTime = MM_GetTime();
 
                 loop = new Thread(Loop);

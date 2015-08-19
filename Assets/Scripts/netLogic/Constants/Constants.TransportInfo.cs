@@ -19,16 +19,13 @@ namespace netLogic.Constants
 
         public static TransportInfo Read(BinaryReader reader, MovementFlags2 flags2)
         {
-            
-     
-            
             var tInfo = new TransportInfo();
             tInfo.Guid = reader.ReadUInt64();
             tInfo.Position = reader.ReadCoords3();
             tInfo.Facing = reader.ReadSingle();
             tInfo.Time = reader.ReadUInt32();
             tInfo.Seat = reader.ReadByte();
-            if (flags2.HasFlag(MovementFlags2.InterpolatedPlayerMovement))
+            if (flags2.HasFlag(MovementFlags2.InterpolateMove))
                 tInfo.Time2 = reader.ReadUInt32();
             return tInfo;
         }

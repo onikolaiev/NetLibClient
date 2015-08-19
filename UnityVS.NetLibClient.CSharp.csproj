@@ -13,11 +13,13 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile></CompilerResponseFile>
+    <CompilerResponseFile>
+    </CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows64:19</UnityBuildTarget>
     <UnityVersion>5.0.1f1</UnityVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -283,7 +285,6 @@
     <Compile Include="Assets\Scripts\netLogic\Constants\Constants.Combat.cs" />
     <Compile Include="Assets\Scripts\netLogic\Constants\Constants.Coords.cs" />
     <Compile Include="Assets\Scripts\netLogic\Constants\Constants.MovementFlags.cs" />
-    <Compile Include="Assets\Scripts\netLogic\Constants\Constants.MovementInfo.cs" />
     <Compile Include="Assets\Scripts\netLogic\Constants\Constants.Objects.cs" />
     <Compile Include="Assets\Scripts\netLogic\Constants\Constants.OpCodes.cs" />
     <Compile Include="Assets\Scripts\netLogic\Constants\Constants.Other.cs" />
@@ -382,7 +383,6 @@
     <Compile Include="Assets\Scripts\netLogic\World\WorldSession\WorldSession.Others.cs" />
     <Compile Include="Assets\Scripts\netLogic\World\WorldSession\WorldSession.Spells.cs" />
     <Compile Include="Assets\Scripts\netLogic\World\WorldSession\WorldSession.cs" />
-    <Compile Include="Assets\Scripts\netLogic\mCore.cs" />
     <Compile Include="Assets\Scripts\netLogic\netInstance.cs" />
     <Compile Include="Assets\Scripts\onConnect.cs" />
     <Compile Include="Assets\Scripts\onConnectToRealm.cs" />

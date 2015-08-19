@@ -57,7 +57,7 @@ namespace netLogic
         public static extern uint MM_GetTime();
 
         private System.Timers.Timer aTimer = new System.Timers.Timer();
-        private System.Timers.Timer uTimer = new System.Timers.Timer();
+        private System.Timers.Timer uTimer;
         private UInt32 Ping_Seq;
         private UInt32 Ping_Req_Time;
         private UInt32 Ping_Res_Time;
@@ -194,9 +194,9 @@ namespace netLogic
         void PingLoop()
         {
             aTimer.Elapsed += new ElapsedEventHandler(Ping);
-            aTimer.Interval = 10000000;
+            aTimer.Interval = 10000;
             aTimer.Enabled = true;
-
+            aTimer.Start();
             Ping_Seq = 10;
             Latency = 10;
         }
@@ -216,6 +216,22 @@ namespace netLogic
             ping.Write(Ping_Seq);
             ping.Write(Latency);
             Send(ping);
+        }
+
+        public void StartHeartbeat()
+        {
+            uTimer = new System.Timers.Timer();
+            uTimer.Elapsed += new ElapsedEventHandler(HeartBeat);
+            uTimer.Interval = 500;
+            uTimer.Enabled = true;
+            uTimer.Start();
+        }
+
+        public void StopHeartbeat()
+        {
+            uTimer.Stop();
+            uTimer.Dispose();
+            uTimer = null;
         }
 
         public void Send(PacketOut packet)
@@ -249,12 +265,7 @@ namespace netLogic
             
         }
 
-        public void StartHeartbeat()
-        {
-          //  aTimer.Elapsed += new ElapsedEventHandler(Heartbeat);
-           // aTimer.Interval = 3000;
-          //  aTimer.Enabled = true;
-        }
+
 
         public void HandlePacket(PacketIn packet)
         {

@@ -252,7 +252,6 @@
      <Compile Include="Assets\Scripts\netLogic\Constants\Constants.Combat.cs" />
      <Compile Include="Assets\Scripts\netLogic\Constants\Constants.Coords.cs" />
      <Compile Include="Assets\Scripts\netLogic\Constants\Constants.MovementFlags.cs" />
-     <Compile Include="Assets\Scripts\netLogic\Constants\Constants.MovementInfo.cs" />
      <Compile Include="Assets\Scripts\netLogic\Constants\Constants.Objects.cs" />
      <Compile Include="Assets\Scripts\netLogic\Constants\Constants.OpCodes.cs" />
      <Compile Include="Assets\Scripts\netLogic\Constants\Constants.Other.cs" />
@@ -351,7 +350,6 @@
      <Compile Include="Assets\Scripts\netLogic\World\WorldSession\WorldSession.Others.cs" />
      <Compile Include="Assets\Scripts\netLogic\World\WorldSession\WorldSession.Spells.cs" />
      <Compile Include="Assets\Scripts\netLogic\World\WorldSession\WorldSession.cs" />
-     <Compile Include="Assets\Scripts\netLogic\mCore.cs" />
      <Compile Include="Assets\Scripts\netLogic\netInstance.cs" />
      <Compile Include="Assets\Scripts\onConnect.cs" />
      <Compile Include="Assets\Scripts\onConnectToRealm.cs" />

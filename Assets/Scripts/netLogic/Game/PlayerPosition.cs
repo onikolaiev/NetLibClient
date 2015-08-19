@@ -74,7 +74,6 @@ public class PlayerPosition : netInstance
             // Debug.Log("ClientCallback:SendPosition()");
             CmdSendPosition(playerTransform.position);
             lastPos = playerTransform.position;
-            Heartbeat(playerTransform.gameObject);
             // Debug.Log(playerTransform.position.ToString());
         }
     }
@@ -89,7 +88,7 @@ public class PlayerPosition : netInstance
     {
         playerTransform.position = Vector3.Lerp(playerTransform.position, syncPos, Time.deltaTime * posLerpRate);
 
-        Heartbeat(playerTransform.gameObject);
+    //    Heartbeat(playerTransform.gameObject);
     
     
     }
@@ -101,25 +100,6 @@ public class PlayerPosition : netInstance
         return BitConverter.ToSingle(buffer, 0);
     }
 
-    void Heartbeat(GameObject _go)
-    {
-        MyCharacter _ch = Global.GetInstance().GetWSession().GetMyChar();
-        Loom.DispatchToMainThread(() =>
-        {
-            Vector3 pos = new Vector3(_ch.transform.position.x, _ch.transform.position.y, _ch.transform.position.z);
-            PacketOut packet = new PacketOut(WorldServerOpCode.MSG_MOVE_HEARTBEAT);
-            packet.WritePackedUInt64(_ch.GetGUID().GetOldGuid());
-            packet.Write((UInt32)_ch.Flags);
-            packet.Write((UInt16)_ch.Flags2);
-            packet.Write(MM_GetTime());
-            packet.Write(pos.x);
-            packet.Write(pos.y);
-            packet.Write(pos.z);
-            packet.Write(_ch.transform.rotation.y);
-            packet.Write((UInt32)0);
-            Global.GetInstance().GetWSession().Send(packet);
-        });
-    }
     void QueuedInterpolation()
     {
         // Only lerp if we have a destination

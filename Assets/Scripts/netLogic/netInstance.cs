@@ -25,7 +25,19 @@ namespace netLogic
     {
         public static netInstance GetInstance()
         {
-            return GameObject.Find("_start").GetComponent<netInstance>();
+            netInstance ni = (netInstance)Loom.DispatchToMainThreadReturn(()=>{ return GameObject.Find("_start").GetComponent<netInstance>();});
+
+
+            return ni;
+        }
+
+        public static void WriteInfo(string _str)
+        {
+            Loom.DispatchToMainThread(() =>
+            {
+                GameObject.Find("InfoLable").GetComponent<UILabel>().text = _str;
+            });
+        
         }
     
     }
@@ -75,6 +87,7 @@ namespace netLogic
             Loom.CreateThreadPoolScheduler();
             InitCore(EventHandler);
             DontDestroyOnLoad(this);
+            DontDestroyOnLoad(GameObject.Find("InfoLabel"));
         }
 
         // Use this for initialization
@@ -120,7 +133,7 @@ namespace netLogic
                 case EventType.EVENT_REALMLIST:
 
 
-                    Loom.DispatchToMainThread(() => { LevelManager.Load("RealmServers"); }, false, false);
+                    LevelManager.Load("RealmServers");
                     //  UnityThreadHelper.Dispatcher.Dispatch(() => { LevelManager.Load("RealmServers"); });
 
                     break;
@@ -138,12 +151,12 @@ namespace netLogic
                 case EventType.EVENT_ERROR:
                     //MessageBox.Show((string)e.eventArgs[0], "Error!");
                     break;
-                /* case netLogic.EventType.EVENT_AUTH_FALSE:
-                     Log.WriteLine(netLogic.Shared.LogType.Error, "[{0}]", (string)e.eventArgs[0]);
-                     break;
-                 case netLogic.EventType.EVENT_AUTH_OK:
-                     Log.WriteLine(netLogic.Shared.LogType.Success, "[{0}]", (string)e.eventArgs[0]);
-                     break;*/
+                case netLogic.EventType.EVENT_AUTH_FALSE:
+                    Global.WriteInfo((string)e.eventArgs[0]);
+                    break;
+                case netLogic.EventType.EVENT_OK:
+                    Global.WriteInfo((string)e.eventArgs[0]);
+                    break;
                 case EventType.EVENT_DISCONNECT:
                     //HandleDisconnect();
                     break;
@@ -491,6 +504,8 @@ namespace netLogic
         EVENT_CHAT_MSG,
         EVENT_ERROR,
         EVENT_DISCONNECT,
+        EVENT_AUTH_FALSE,
+        EVENT_OK
     }
 
     public class Event
