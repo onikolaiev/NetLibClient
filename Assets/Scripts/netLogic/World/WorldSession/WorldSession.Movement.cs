@@ -90,6 +90,20 @@ namespace netLogic
             BuildMovePacket(WorldServerOpCode.MSG_MOVE_START_FORWARD);
         }
 
+        public void StartMoveBackward()
+        {
+            BuildMovePacket(WorldServerOpCode.MSG_MOVE_START_BACKWARD);
+        }
+
+        public void StopMove()
+        {
+            BuildMovePacket(WorldServerOpCode.MSG_MOVE_STOP);
+        }
+
+        
+
+
+
         public void HeartBeat(object source, ElapsedEventArgs e)
         {
             BuildMovePacket(WorldServerOpCode.MSG_MOVE_HEARTBEAT);
@@ -100,10 +114,7 @@ namespace netLogic
             BuildMovePacket(WorldServerOpCode.MSG_MOVE_HEARTBEAT);
         }
 
-        public void StopMoveForward()
-        {
-            BuildMovePacket(WorldServerOpCode.MSG_MOVE_STOP);
-        }
+        
 
         public void SetFacing()
         {

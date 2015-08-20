@@ -13,13 +13,11 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile>
-    </CompilerResponseFile>
+    <CompilerResponseFile></CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows64:19</UnityBuildTarget>
     <UnityVersion>5.0.1f1</UnityVersion>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -304,15 +302,14 @@
     <Compile Include="Assets\Scripts\netLogic\Crypt\Srp6.cs" />
     <Compile Include="Assets\Scripts\netLogic\Crypt\WoWCrypt.cs" />
     <Compile Include="Assets\Scripts\netLogic\Game\ChLoad.cs" />
-    <Compile Include="Assets\Scripts\netLogic\Game\PlayerAnimationController.cs" />
-    <Compile Include="Assets\Scripts\netLogic\Game\PlayerCharacterController.cs" />
-    <Compile Include="Assets\Scripts\netLogic\Game\PlayerEnums.cs" />
-    <Compile Include="Assets\Scripts\netLogic\Game\PlayerIdentity.cs" />
-    <Compile Include="Assets\Scripts\netLogic\Game\PlayerPosition.cs" />
-    <Compile Include="Assets\Scripts\netLogic\Game\PlayerRotation.cs" />
-    <Compile Include="Assets\Scripts\netLogic\Game\PlayerSetup.cs" />
-    <Compile Include="Assets\Scripts\netLogic\Game\PlayerShoot.cs" />
-    <Compile Include="Assets\Scripts\netLogic\Game\ThirdPersonCameraController.cs" />
+    <Compile Include="Assets\Scripts\netLogic\Game\RPGAnim.cs" />
+    <Compile Include="Assets\Scripts\netLogic\Game\RPGCamera.cs" />
+    <Compile Include="Assets\Scripts\netLogic\Game\RPGCollisions.cs" />
+    <Compile Include="Assets\Scripts\netLogic\Game\RPGInput.cs" />
+    <Compile Include="Assets\Scripts\netLogic\Game\RPGInputUtils.cs" />
+    <Compile Include="Assets\Scripts\netLogic\Game\RPGMesh.cs" />
+    <Compile Include="Assets\Scripts\netLogic\Game\RPGMotor.cs" />
+    <Compile Include="Assets\Scripts\netLogic\Game\RPGTriangleTree.cs" />
     <Compile Include="Assets\Scripts\netLogic\Mgr\CombatMgr.cs" />
     <Compile Include="Assets\Scripts\netLogic\Mgr\MapMgr.cs" />
     <Compile Include="Assets\Scripts\netLogic\Mgr\MovementMgr.cs" />
@@ -398,8 +395,6 @@
     <None Include="Assets\NGUI\Examples\Atlases\Wooden\Arimo14.txt" />
     <None Include="Assets\NGUI\Examples\Atlases\Wooden\Arimo18.txt" />
     <None Include="Assets\NGUI\Examples\Atlases\Wooden\Arimo20.txt" />
-    <None Include="Assets\NGUI\Examples\Models\Orc Armor\Orc Armor.shader" />
-    <None Include="Assets\NGUI\Examples\Models\Orc\Orc Skin.shader" />
     <None Include="Assets\NGUI\Examples\Resources\Localization.txt" />
     <None Include="Assets\NGUI\Examples\Shaders\Refractive.shader" />
     <None Include="Assets\NGUI\Examples\Shaders\Unlit - Additive Colored.shader" />
@@ -424,9 +419,12 @@
     <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Packed 3.shader" />
     <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Packed.shader" />
     <None Include="Assets\Plugins\nunit.framework.xml" />
+    <None Include="Assets\Prefabs\Hard Surface Free\HardSurface Shaders\HardSurface Free Cut Out Specular.shader" />
+    <None Include="Assets\Prefabs\Hard Surface Free\HardSurface Shaders\HardSurfacePro Hidden Front Cut Out Specular.shader" />
     <None Include="Assets\RnM UI for NGUI\Readme.txt" />
     <None Include="Assets\RnM UI for NGUI\Shaders\UIOverlay.shader" />
     <None Include="Assets\Scripts\netLogic\packages\NUnit.2.6.4\license.txt" />
+    <None Include="Assets\readme.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2012\UnityVS.CSharp.targets" />
 </Project>
