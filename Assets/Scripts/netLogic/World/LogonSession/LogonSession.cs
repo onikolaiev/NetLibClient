@@ -289,9 +289,8 @@ namespace netLogic
 
             }
             else {
-                Log.WriteLine(LogType.Error, "Authenitcation filed. Wrong information");
+                //Log.WriteLine(LogType.Error, "Authenitcation filed. Wrong information");
                 netInstance.Event(new Event(EventType.EVENT_AUTH_FALSE, "0", new object[] { "Authenitcation filed. Wrong information" }));
-                pLoop.Stop();
                 Global.GetInstance().Disconnect();
             }
 
@@ -325,7 +324,9 @@ namespace netLogic
                }
 
                 Realmlist = realms;
-                netInstance.Event(new Event(EventType.EVENT_REALMLIST, "", new object[] { Realmlist }));
+
+                LevelManager.Load("RealmServers");
+                //netInstance.Event(new Event(EventType.EVENT_REALMLIST, "", new object[] { Realmlist }));
                 
 
             }

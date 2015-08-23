@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using netLogic;
 
 public class RPGAnim : MonoBehaviour
 {
@@ -119,6 +120,7 @@ public class RPGAnim : MonoBehaviour
     void Update()
     {
         transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed);
+
     }
 
     void OnMove()
@@ -212,6 +214,10 @@ public class RPGAnim : MonoBehaviour
         {
             PlayAnimation("Falling", falling);
         }
+        else if (motor.GroundDelta == 0.3f)
+        {
+           // Global.GetInstance().GetWSession().StartFall();
+        }
 
         if (Input.GetAxisRaw("Mouse X") != 0f)
         {
@@ -244,6 +250,8 @@ public class RPGAnim : MonoBehaviour
         if (motor.GroundDelta > 0.3f)
         {
             PlayAnimation("Landing", landing);
+            Global.GetInstance().GetWSession().HeartBeat();
+            Global.GetInstance().GetWSession().StopMove();
         }
     }
 
@@ -283,6 +291,9 @@ public class RPGAnim : MonoBehaviour
 
     void SetRotation(Vector3 towards)
     {
+        if (rotation != Quaternion.LookRotation(towards))
+            Global.GetInstance().GetWSession().SetFacing();
         rotation = Quaternion.LookRotation(towards);
+        
     }
 }

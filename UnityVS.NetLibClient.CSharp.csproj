@@ -13,11 +13,13 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile></CompilerResponseFile>
+    <CompilerResponseFile>
+    </CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows64:19</UnityBuildTarget>
     <UnityVersion>5.0.1f1</UnityVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -273,6 +275,7 @@
     <Compile Include="Assets\RnM UI for NGUI\Scripts\UI\UITable_ItemMargin.cs" />
     <Compile Include="Assets\RnM UI for NGUI\Scripts\UI\UIWindow.cs" />
     <Compile Include="Assets\Scripts\LevelManager.cs" />
+    <Compile Include="Assets\Scripts\netLogic\Object\Class1.cs" />
     <Compile Include="Assets\Scripts\OnExit.cs" />
     <Compile Include="Assets\Scripts\_chselected.cs" />
     <Compile Include="Assets\Scripts\forward.cs" />

@@ -1,4 +1,5 @@
-﻿using netLogic.Constants;
+﻿using Frankfort.Threading;
+using netLogic.Constants;
 using netLogic.Network;
 using netLogic.Shared;
 using System;
@@ -90,7 +91,7 @@ namespace netLogic
     }
 
     #region Object Update
-    public class ObjectUpdate :  MonoBehaviour , a
+    public class ObjectUpdate :  MonoBehaviour , IThreadWorkerObject
     {
         public IDictionary<int, uint> Data { get; set; }
 

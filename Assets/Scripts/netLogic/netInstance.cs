@@ -14,6 +14,7 @@ using netLogic.Terrain;
 using netLogic.Constants;
 using netLogic.Common;
 using UnityEngine;
+using Frankfort.Threading;
 
 
 
@@ -60,6 +61,7 @@ namespace netLogic
         #endregion
 
         #region Internal stuff
+        public ThreadPoolScheduler myScheduler;
         private static Boolean inited = false;
         public static Boolean _PlayerInited = false;
         private static LogonSession logonSession;      // My Pvt handle to the RealmListClient
@@ -84,28 +86,28 @@ namespace netLogic
 
         void Awake()
         {
-            Loom.CreateThreadPoolScheduler();
+            myScheduler = Loom.CreateThreadPoolScheduler("myScheduler");
+            myScheduler.ForceToMainThread = true;
+            
             InitCore(EventHandler);
             DontDestroyOnLoad(this);
+            DontDestroyOnLoad(login);
+            DontDestroyOnLoad(pass);
             DontDestroyOnLoad(GameObject.Find("InfoLabel"));
+            
         }
 
         // Use this for initialization
         void Start()
         {
-            
+            DontDestroyOnLoad(myScheduler);
             
         }
 
         // Update is called once per frame
         void Update()
         {
-            
-            if (logonSession==null)
-            {
-                username = login.GetComponent<UILabel>().text;
-                password = pass.GetComponent<UIInput>().value;
-            }
+
             
         }
 
@@ -133,7 +135,7 @@ namespace netLogic
                 case EventType.EVENT_REALMLIST:
 
 
-                    LevelManager.Load("RealmServers");
+                    
                     //  UnityThreadHelper.Dispatcher.Dispatch(() => { LevelManager.Load("RealmServers"); });
 
                     break;

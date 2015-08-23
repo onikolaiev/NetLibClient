@@ -12,6 +12,8 @@ using netLogic.Shared;
 using netLogic.Network;
 using netLogic.Constants;
 using UnityEngine;
+using System.Collections;
+using Frankfort.Threading;
 
 namespace netLogic
 {
@@ -34,7 +36,6 @@ namespace netLogic
         [PacketHandlerAtribute(WorldServerOpCode.MSG_MOVE_SET_RUN_MODE)]
         [PacketHandlerAtribute(WorldServerOpCode.MSG_MOVE_SET_WALK_MODE)]
         [PacketHandlerAtribute(WorldServerOpCode.MSG_MOVE_TOGGLE_LOGGING)]
-
         [PacketHandlerAtribute(WorldServerOpCode.MSG_MOVE_TOGGLE_FALL_LOGGING)]
         [PacketHandlerAtribute(WorldServerOpCode.MSG_MOVE_FALL_LAND)]
         [PacketHandlerAtribute(WorldServerOpCode.MSG_MOVE_START_SWIM)]
@@ -44,14 +45,36 @@ namespace netLogic
         public void HandleAnyMove(PacketIn packet)
         {
             byte mask = packet.ReadByte();
+            Vector3 targetPosition;
+            Quaternion targetRotation;
             GameGuid guid = new GameGuid(mask, packet.ReadBytes(GameGuid.BitCount8(mask)));
-            GetInstance().ObjMgr().GetObj(guid).Flags = (MovementFlags)packet.ReadUInt32();
-            GetInstance().ObjMgr().GetObj(guid).Flags2 = (MovementFlags2)packet.ReadUInt16();
-            GetInstance().ObjMgr().GetObj(guid).TimeStamp = packet.ReadUInt32();
+            Object obj = GetInstance().ObjMgr().GetObj(guid);
+            obj.Flags = (MovementFlags)packet.ReadUInt32();
+            obj.Flags2 = (MovementFlags2)packet.ReadUInt16();
+            obj.TimeStamp = packet.ReadUInt32();
             GetInstance().ObjMgr().GetObj(guid).transform.position = packet.ReadCoords3();
-            GetInstance().ObjMgr().GetObj(guid).transform.rotation = Quaternion.Euler(0, packet.ReadFloat() * Mathf.Rad2Deg * -1, 0);
+           // targetPosition = packet.ReadCoords3();
+            obj.transform.rotation = Quaternion.Euler(0, packet.ReadFloat() * Mathf.Rad2Deg * -1, 0);
             packet.ReadUInt32();
+
+            
+
+            
+
+
+            
+            //Log.WriteLine(netLogic.Shared.LogType.Debug, "> Operating System: ");
         }
+
+      /*  void MoveToPosition(IThreadWorkerObject finishedObjects)
+        {
+            while (obj.transform.position != target)
+            {
+                obj.transform.position = Vector3.MoveTowards(obj.transform.position, target, obj.speedWalk * UnityEngine.Time.deltaTime);
+               // Log.WriteLine(netLogic.Shared.LogType.Debug, "> Operating System: Windows");
+                
+            }
+        }*/
 
         [PacketHandlerAtribute(WorldServerOpCode.MSG_MOVE_TELEPORT)]
         [PacketHandlerAtribute(WorldServerOpCode.MSG_MOVE_TELEPORT_CHEAT)]

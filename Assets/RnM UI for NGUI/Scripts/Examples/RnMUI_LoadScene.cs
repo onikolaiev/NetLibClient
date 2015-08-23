@@ -16,19 +16,8 @@ public class RnMUI_LoadScene : MonoBehaviour {
         if (Global.GetInstance().GetWSession()._chSelected)
         {
             Global.GetInstance().GetWSession().LoginPlayer();
-           // LevelManager.Load("DEMO_WORLD");
         }
 	}
 
-	public void OnProgress()
-	{
-		if (this.ignoreFirst)
-		{
-			this.ignoreFirst = false;
-			return;
-		}
-
-		if (this.bar != null && this.bar.value >= this.requiredValue)
-			LoadScene();
-	}
+	
 }

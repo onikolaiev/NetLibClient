@@ -16,7 +16,7 @@ public class LevelManager : MonoBehaviour
     {
         //load transition scene
         Object.DontDestroyOnLoad(this.gameObject);
-        Application.LoadLevel("Demo Loading Scene");
+        //Application.LoadLevel("Demo Loading Scene");
 
         //wait one frame (for rendering, etc.)
         yield return null;

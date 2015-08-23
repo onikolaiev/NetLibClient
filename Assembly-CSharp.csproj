@@ -291,6 +291,7 @@
      <Compile Include="Assets\Scripts\netLogic\Network\PacketLoop.cs" />
      <Compile Include="Assets\Scripts\netLogic\Network\PacketOut.cs" />
      <Compile Include="Assets\Scripts\netLogic\Object\Bag.cs" />
+     <Compile Include="Assets\Scripts\netLogic\Object\Class1.cs" />
      <Compile Include="Assets\Scripts\netLogic\Object\Corpse.cs" />
      <Compile Include="Assets\Scripts\netLogic\Object\DynamicObject.cs" />
      <Compile Include="Assets\Scripts\netLogic\Object\GO.cs" />

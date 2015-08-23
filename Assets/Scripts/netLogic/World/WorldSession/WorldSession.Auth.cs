@@ -50,12 +50,13 @@ namespace netLogic
             var str = packet.ReadCString();
             //Console.WriteLine(packet.ToHex());
             var guid = Global.GetInstance().GetWSession().GetMyGuid().GetOldGuid();
+            QueryName(guid);
             PacketOut outpacket = new PacketOut(WorldServerOpCode.CMSG_SET_ACTIVE_MOVER);
             outpacket.Write(guid);
             Send(outpacket);
-            QueryName(guid);
+            
 
-            LevelManager.Load("DEMO_WORLD");
+          //  LevelManager.Load("DEMO_WORLD");
         }
 
         [PacketHandlerAtribute(WorldServerOpCode.SMSG_AUTH_RESPONSE)]
@@ -249,14 +250,7 @@ namespace netLogic
             outpacket.Write(chr.GUID.GetOldGuid());
             Send(outpacket);
 
-            GameObject _goup = Instantiate(Resources.Load("Player") as GameObject);
-            _goup.AddComponent<MyCharacter>();
-
-            MyCharacter ch = _goup.GetComponent<MyCharacter>();
-            ch.Create(chr.GUID);
-
-            GetInstance().ObjMgr().Add(ch);
-            DontDestroyOnLoad(ch);
+            
             
             outpacket = new PacketOut(WorldServerOpCode.CMSG_UPDATE_ACCOUNT_DATA);
             outpacket.Write((UInt32)7);

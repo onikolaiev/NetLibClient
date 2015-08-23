@@ -10,10 +10,12 @@ using netLogic.Network;
 using netLogic.Clients;
 using netLogic.Constants;
 using netLogic.Shared;
+using UnityEngine;
+using System.Collections;
 
 namespace netLogic.Network
 {
-    public class PacketLoop
+    public class PacketLoop : MonoBehaviour
     {
          Thread loop;
          uint firstByteSize;
@@ -46,16 +48,19 @@ namespace netLogic.Network
              loop = new Thread(Loop);
              loop.IsBackground = false;
              loop.Start();
+             //StartCoroutine("WaitAndPrint");
          }
 
          public void Stop()
          {
              if (loop != null)
                  loop.Abort();
+            // StopCoroutine("Loop");
          }
 
          void Loop()
          {
+          //   StartCoroutine("WaitAndPrint");
              if (ServiceStatus == ServiceType.Logon)
              {
                  Connected = tClient.Connected;
@@ -74,7 +79,7 @@ namespace netLogic.Network
                      if (!tSocket.Connected)
                      {
                          tClient.Connected = false;
-                         Log.WriteLine(LogType.Error, "Disconnected from Logon Server");
+                         Log.WriteLine(netLogic.Shared.LogType.Error, "Disconnected from Logon Server");
                          return;
                      }
                      while  (tSocket.Available > 0)
@@ -83,10 +88,8 @@ namespace netLogic.Network
                          {
                              data = OnReceive(tSocket.Available);
                              PacketIn packet = new PacketIn(data,true);
-                            // Loom.DispatchToMainThread(() =>
-                            // {
-                                 tClient.HandlePacket(packet);
-                            // });
+                             tClient.HandlePacket(packet);
+
                          }
                          catch (Exception ex)    // Server dc'd us most likely ;P
                          {
@@ -98,7 +101,7 @@ namespace netLogic.Network
                      if (!tSocket.Connected)
                      {
                          wClient.Connected = false;
-                         Log.WriteLine(LogType.Error, "Disconnected from World Server");
+                         Log.WriteLine(netLogic.Shared.LogType.Error, "Disconnected from World Server");
                          return;
                      }
                      try
@@ -110,11 +113,11 @@ namespace netLogic.Network
                          data = OnReceive(dataSize);
                          decryptData(data);
                          PacketIn packet = new PacketIn(data);
-                         //Log.WriteLine(LogType.Network, packet.ToHex());
+
                          Loom.DispatchToMainThread(() =>
                          {
                              wClient.HandlePacket(packet);
-                         });
+                         },false,true);
                          
                      }
                      catch (Exception ex)    // Server dc'd us most likely ;P
@@ -123,6 +126,98 @@ namespace netLogic.Network
                  }
              }
          }
+         IEnumerator WaitAndPrint()
+         {
+             Log.WriteLine(netLogic.Shared.LogType.Error, "Disconnected from World Server");
+             yield return true;
+             
+             
+         }
+
+        /* IEnumerator Loop()
+         {
+             if (ServiceStatus == ServiceType.Logon)
+             {
+                 Connected = tClient.Connected;
+             }
+
+             else if (ServiceStatus == ServiceType.World)
+             {
+                 Connected = wClient.Connected;
+             }
+
+             while (Connected)
+             {
+
+                 if (ServiceStatus == ServiceType.Logon)
+                 {
+                     if (!tSocket.Connected)
+                     {
+                         tClient.Connected = false;
+                         Log.WriteLine(netLogic.Shared.LogType.Error, "Disconnected from Logon Server");
+                         break;
+                     }
+                     while (tSocket.Available > 0)
+                     {
+                         try
+                         {
+                             data = OnReceive(tSocket.Available);
+                             PacketIn packet = new PacketIn(data, true);
+                             tClient.HandlePacket(packet);
+
+                         }
+                         catch (Exception ex)    // Server dc'd us most likely ;P
+                         {
+                         }
+                     }
+                 }
+                 else if (ServiceStatus == ServiceType.World)
+                 {
+                     if (!tSocket.Connected)
+                     {
+                         wClient.Connected = false;
+                         Log.WriteLine(netLogic.Shared.LogType.Error, "Disconnected from World Server");
+                         break;
+                     }
+                     try
+                     {
+                         byte[] sizeBytes = OnReceive(2);
+                         dataSize = parseSize(sizeBytes);
+
+
+                         data = OnReceive(dataSize);
+                         decryptData(data);
+                         PacketIn packet = new PacketIn(data);
+
+                         //Loom.DispatchToMainThread(() =>
+                         // {
+                         wClient.HandlePacket(packet);
+                         //    },false,false);
+
+                     }
+                     catch (Exception ex)    // Server dc'd us most likely ;P
+                     {
+                     }
+                 }
+             }
+             yield return true;
+         }*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
          public byte[] OnReceive(int mSize)
          {

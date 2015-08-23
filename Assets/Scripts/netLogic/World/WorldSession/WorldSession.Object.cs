@@ -37,116 +37,44 @@ namespace netLogic
 		[PacketHandlerAtribute(WorldServerOpCode.SMSG_UPDATE_OBJECT)]
 		public void HandleObjectUpdate(PacketIn packet)
 		{
-                UInt32 UpdateBlocks = packet.ReadUInt32();
+            UInt32 UpdateBlocks = packet.ReadUInt32();
 
-                for(int allBlocks = 0; allBlocks < UpdateBlocks; allBlocks++)
+            for (int allBlocks = 0; allBlocks < UpdateBlocks; allBlocks++)
+            {
+                UpdateTypes type = (UpdateTypes)packet.ReadByte();
+
+
+                switch (type)
                 {
-                    UpdateTypes type = (UpdateTypes)packet.ReadByte();
-                    
-                   
-                    switch (type)
-                    {
-                        case UpdateTypes.UPDATETYPE_VALUES:
-                            ParseValues(packet);
-                            break;
-                        case UpdateTypes.UPDATETYPE_MOVEMENT:
-                            ParseMovement(packet);
-                            break;
-                        case UpdateTypes.UPDATETYPE_CREATE_OBJECT:
-                        case UpdateTypes.UPDATETYPE_CREATE_OBJECT2:
-                            ParseCreateObjects(packet);
-                            break;
-                        case UpdateTypes.UPDATETYPE_OUT_OF_RANGE_OBJECTS:
-                            //ParseOutOfRangeObjects(packet);
-                            break;
-                        case UpdateTypes.UPDATETYPE_NEAR_OBJECTS:
-                            //ParseNearObjects(packet);
-                            break;
-                        default:
-                            Console.WriteLine("Unknown updatetype {0}", type);
-                            break;
-                    }
+                    case UpdateTypes.UPDATETYPE_VALUES:
+                        ParseValues(packet);
+                        //StartCoroutine(ParseValueAsync(packet));
+                        break;
+                    case UpdateTypes.UPDATETYPE_MOVEMENT:
+                        ParseMovement(packet);
+                        //StartCoroutine(ParseMovementAsync(packet));
+                        break;
+                    case UpdateTypes.UPDATETYPE_CREATE_OBJECT:
+                    case UpdateTypes.UPDATETYPE_CREATE_OBJECT2:
 
-                    #region
-                    /*switch (type)
-                    {
-                        case UpdateType.Values:
-                            Object getObject;
-                            var guidv = packet.ReadPackedGuid();
-                            updateGuid = new WoWGuid(packet.ReadUInt64());
-                            updateId = (ObjectTypes)packet.ReadByte();
-                            //updategui = packet.ReadPackedGuid();
-
-                            if (netLogicCore.ObjectMgr.objectExists(updateGuid))
-                            {
-                                getObject = netLogicCore.ObjectMgr.getObject(updateGuid);
-                            }
-                            else
-                            {
-                                getObject = new Object(updateGuid);
-                                netLogicCore.ObjectMgr.newObject(getObject);
-                            }
-
-                            Log.WriteLine(LogType.Normal, "Handling Fields Update for object: {0}", getObject.GUID.ToString());
-
-                            getObject.Fields = new UInt32[2000];
-
-                            HandleUpdateObjectFieldBlock(packet, getObject);
-
-
-                            netLogicCore.ObjectMgr.updateObject(getObject);
-                            QueryName(getObject.GUID);
-                            break;
-
-
-
-                        case UpdateType.Movement:
-                            ParseMovement(packet);
-                            break;
-                        case UpdateType.Create:
-                        case UpdateType.CreateSelf:
-                            //var guidc = packet.ReadPackedGuid();
-                            updateGuid = new WoWGuid(packet.ReadUInt64());
-                            updateId = (ObjectTypes)packet.ReadByte();
-
-                            //fCount = GetUpdateFieldsCount(updateId);
-                            //fCount = GetUpdateFieldsCount(updateId);
-
-                            if (netLogicCore.ObjectMgr.objectExists(updateGuid))
-                                netLogicCore.ObjectMgr.delObject(updateGuid);
-
-                            Object newObject = new Object(updateGuid);
-
-                            newObject.Fields = new UInt32[2000];
-
-                            netLogicCore.ObjectMgr.newObject(newObject);
-
-                            HandleUpdateMovementBlock(packet, newObject);
-
-                            HandleUpdateObjectFieldBlock(packet, newObject);
-
-                            netLogicCore.ObjectMgr.updateObject(newObject);
-                            QueryName(newObject.GUID);
-
-                            Log.WriteLine(LogType.Normal, "Handling Creation of object: {0}", newObject.GUID.ToString());
-                            break;
-                        
-                        case UpdateType.OutOfRange:
-                            fCount = packet.ReadByte();
-                            for (int j = 0; j < fCount; j++)
-                            {
-                                WoWGuid guid = new WoWGuid(packet.ReadUInt64());
-                                Log.WriteLine(LogType.Normal, "Handling delete for object: {0}", guid.ToString());
-                                if (netLogicCore.ObjectMgr.objectExists(guid))
-                                    netLogicCore.ObjectMgr.delObject(guid);
-                            }
-                            break;
-                    }*/
-                    #endregion
-
+                        ParseCreateObjects(packet);
+                        //StartCoroutine(CreateObjectAsync(packet));
+                        break;
+                    case UpdateTypes.UPDATETYPE_OUT_OF_RANGE_OBJECTS:
+                        //ParseOutOfRangeObjects(packet);
+                        break;
+                    case UpdateTypes.UPDATETYPE_NEAR_OBJECTS:
+                        //ParseNearObjects(packet);
+                        break;
+                    default:
+                        Console.WriteLine("Unknown updatetype {0}", type);
+                        break;
                 }
-              
+            }
+         
         }
+
+
         #endregion
 
         #region Creature query
@@ -171,6 +99,8 @@ namespace netLogic
             entry.family = packet.ReadUInt32();
             entry.rank = packet.ReadUInt32();
 
+
+            
         /*    foreach (MMOObject obj in netLogicCore.ObjectMgr.WorldObjects)
             {
                 if (obj.Fields != null)
@@ -278,225 +208,163 @@ namespace netLogic
         
         }
 
+        IEnumerator ParseMovementAsync(BinaryReader gr)
+        {
+            ParseMovement(gr);
+            //yield return true;
+            return null;
+        }
+        IEnumerator ParseValueAsync(BinaryReader gr)
+        {
+            ParseValues(gr);
+            //yield return true;
+            return null;
+        }
+        IEnumerator CreateObjectAsync(GameGuid guid)
+        {
+            GameObject _unit = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            _unit.AddComponent<Unit>();
+            DontDestroyOnLoad(_unit);
+            Unit u = _unit.GetComponent<Unit>();
+            u.Create(guid);
+            GetInstance().ObjMgr().Add(u);
+            yield return new WaitForSeconds(1.0F);
+           
+        }
+
+
         private void ParseCreateObjects(BinaryReader gr)
         {
+            
             byte mask = gr.ReadByte();
 
             GameGuid guid = new GameGuid(mask, gr.ReadBytes(GameGuid.BitCount8(mask)));
 
             OBJECT_TYPE_ID objectTypeId = (OBJECT_TYPE_ID)gr.ReadByte();
-
-            switch (objectTypeId)
-            {
-                case OBJECT_TYPE_ID.TYPEID_OBJECT:
-                    Log.WriteLine(netLogic.Shared.LogType.Normal, "UPDATETYPE_CREATE_OBJECT Unknown updatetype {0}", objectTypeId);
-                    break;
-
-                case OBJECT_TYPE_ID.TYPEID_ITEM:
-                    GameObject _goui = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-                    _goui.AddComponent<Item>();
-                    Item item = _goui.GetComponent<Item>();
-                    item.Create(guid);
-                    GetInstance().ObjMgr().Add(item);
-                    break;
-
-                case OBJECT_TYPE_ID.TYPEID_CONTAINER:
-                    GameObject _goub = GameObject.CreatePrimitive(PrimitiveType.Quad);
-                    _goub.AddComponent<Bag>();
-                    Bag b = _goub.GetComponent<Bag>();
-                    b.Create(guid);
-                    GetInstance().ObjMgr().Add(b);
-                    break;
-
-                case OBJECT_TYPE_ID.TYPEID_UNIT:
-                    GameObject _unit = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                    _unit.AddComponent<Unit>();
-                    Unit u = _unit.GetComponent<Unit>();
-                    u.Create(guid);
-                    GetInstance().ObjMgr().Add(u);
-                    
-                    break;
-
-                case OBJECT_TYPE_ID.TYPEID_PLAYER:
-                    if (guid.GetOldGuid() == _myGUID.GetOldGuid()) // objmgr.Add() would cause quite some trouble if we added ourself again
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        GameObject _goup = GameObject.CreatePrimitive(PrimitiveType.Cube);
-
-                        _goup.AddComponent<Player>();
-                        //if (netInstance._PlayerInited) Instantiate(_goup); else netInstance._PlayerInited = true;
-
-                        Player p = _goup.GetComponent<Player>();
-                        p.Create(guid);
-                        GetInstance().ObjMgr().Add(p);
-                        QueryName(guid);
-                        break;
-                    }
-                    break;
-                case OBJECT_TYPE_ID.TYPEID_GAMEOBJECT:
-                    
-                    GameObject _goug = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-                    _goug.AddComponent<GO>();
-                    GO go = _goug.GetComponent<GO>();
-                    go.Create(guid);
-                    GetInstance().ObjMgr().Add(go);
-              //      ObjectQuery(go.GetGUID(), go.GetEntry());
-                    break;
-
-                case OBJECT_TYPE_ID.TYPEID_DYNAMICOBJECT:
-                    DynamicObject d = new DynamicObject();
-                    d.Create(guid);
-                    GetInstance().ObjMgr().Add(d);
-                    break;
-                case OBJECT_TYPE_ID.TYPEID_CORPSE:
-                    Corpse c = new Corpse();
-                    c.Create(guid);
-                    GetInstance().ObjMgr().Add(c);
-                    break;
-
-                default:
-                    Log.WriteLine(netLogic.Shared.LogType.Normal, "Unknown updatetype {0}", objectTypeId);
-                    break;
-            }
-
-            Object _o = GetInstance().ObjMgr().GetObj(guid);
-
-            _o.ReadMov(gr);
-            if (_o)
-            {
-                _o.ReadUpd(gr);
-                if (_o.IsUnit())
+                switch (objectTypeId)
                 {
-                    CreatureQuery(_o.GetGUID(), _o.GetEntry());
-                }
-                else if (_o.IsGameObject())
-                {
-                    ObjectQuery(_o.GetGUID(), _o.GetEntry());
-                }
+                    case OBJECT_TYPE_ID.TYPEID_OBJECT:
+                        Log.WriteLine(netLogic.Shared.LogType.Normal, "UPDATETYPE_CREATE_OBJECT Unknown updatetype {0}", objectTypeId);
+                        break;
 
-            }
-            else
-            {
-                Log.WriteLine(netLogic.Shared.LogType.Debug, "Unknown updatetype {0}", objectTypeId);
-            }
+                    case OBJECT_TYPE_ID.TYPEID_ITEM:
 
-
-
-
-
-
-        }
-
-
-
-      /*  private void ParseCreateObjects(BinaryReader gr)
-        {
-            byte mask = gr.ReadByte();
-            GameGuid guid = new GameGuid(mask, gr.ReadBytes(GameGuid.BitCount8(mask)));
-
-            OBJECT_TYPE_ID objectTypeId = (OBJECT_TYPE_ID)gr.ReadByte();
-            GameObject _unit1 = new GameObject();
-            _unit1.AddComponent<Unit>();
-            Unit u1 = _unit1.GetComponent<Unit>();
-            u1.Create(guid);
-            u1.Read(gr);
-            var mInfo = MovementInfo.Read(gr);
-            u1.Read(gr);
-            
-            
-            switch (objectTypeId)
-            {
-                case OBJECT_TYPE_ID.TYPEID_OBJECT:
-                    Log.WriteLine(netLogic.Shared.LogType.Normal, "UPDATETYPE_CREATE_OBJECT Unknown updatetype {0}", objectTypeId);
-                    break;
-
-                case OBJECT_TYPE_ID.TYPEID_ITEM:
                         GameObject _goui = GameObject.CreatePrimitive(PrimitiveType.Capsule);
                         _goui.AddComponent<Item>();
+                        DontDestroyOnLoad(_goui);
                         Item item = _goui.GetComponent<Item>();
                         item.Create(guid);
-                        item.Read(gr);
-                        netLogicCore.objMgr.Add(item);
-                    break;
+                        GetInstance().ObjMgr().Add(item);
+                        break;
 
-                case OBJECT_TYPE_ID.TYPEID_CONTAINER:
+                    case OBJECT_TYPE_ID.TYPEID_CONTAINER:
+
                         GameObject _goub = GameObject.CreatePrimitive(PrimitiveType.Quad);
                         _goub.AddComponent<Bag>();
-                        Bag b =  _goub.GetComponent<Bag>();
+                        DontDestroyOnLoad(_goub);
+                        Bag b = _goub.GetComponent<Bag>();
                         b.Create(guid);
-                        b.Read(gr);
-                        netLogicCore.objMgr.Add(b);
-                    break;
+                        GetInstance().ObjMgr().Add(b);
+                        
 
-                case OBJECT_TYPE_ID.TYPEID_UNIT:
-                        GameObject _unit = new GameObject();
+                        break;
+
+                    case OBJECT_TYPE_ID.TYPEID_UNIT:
+                        GameObject _unit = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                         _unit.AddComponent<Unit>();
-                        Unit u=_unit.GetComponent<Unit>();
+                        DontDestroyOnLoad(_unit);
+                        Unit u = _unit.GetComponent<Unit>();
                         u.Create(guid);
-                        u.Read(gr);
-                        netLogicCore.objMgr.Add(u);
-                        CreatureQuery(u.GetGUID(), u.GetEntry());
-                    break;
+                        GetInstance().ObjMgr().Add(u);
+                       
+                        break;
 
-                case OBJECT_TYPE_ID.TYPEID_PLAYER:
-                        GameObject _goup = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                        _goup.AddComponent<Player>();
-                        Player p = _goup.GetComponent<Player>();
-                        p.Create(guid);
-                        p.Read(gr);
-                        netLogicCore.objMgr.Add(p);
-                        QueryName(guid);
-                    break;
+                    case OBJECT_TYPE_ID.TYPEID_PLAYER:
+                        if (guid.GetOldGuid() == _myGUID.GetOldGuid()) // objmgr.Add() would cause quite some trouble if we added ourself again
+                        {
+                            GameObject _goup = Instantiate(Resources.Load("Player") as GameObject);
+                            _goup.AddComponent<MyCharacter>();
 
-                case OBJECT_TYPE_ID.TYPEID_GAMEOBJECT:
-                        GameObject _goug = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                            MyCharacter ch = _goup.GetComponent<MyCharacter>();
+                            ch.Create(guid);
+
+                            GetInstance().ObjMgr().Add(ch);
+                            DontDestroyOnLoad(ch);
+
+                            LevelManager.Load("DEMO_WORLD"); // Оптимальная загрузка уровня после прогрузки всех GO
+
+
+
+
+                            break;
+                        }
+                        else
+                        {
+                            GameObject _goup = GameObject.CreatePrimitive(PrimitiveType.Cube);
+
+                            _goup.AddComponent<Player>();
+                            DontDestroyOnLoad(_goup);
+
+                            Player p = _goup.GetComponent<Player>();
+                            p.Create(guid);
+                            GetInstance().ObjMgr().Add(p);
+                            QueryName(guid);
+                            break;
+                        }
+                        
+                    case OBJECT_TYPE_ID.TYPEID_GAMEOBJECT:
+                        GameObject _goug = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
                         _goug.AddComponent<GO>();
-                        GO go =  _goug.GetComponent<GO>();
-                        go.Read(gr);
-                        netLogicCore.objMgr.Add(go);
-                        ObjectQuery(go.GetGUID(), go.GetEntry());
-                    break;
+                        DontDestroyOnLoad(_goug);
+                        GO go = _goug.GetComponent<GO>();
+                        go.Create(guid);
+                        GetInstance().ObjMgr().Add(go);
+                        break;
 
-                case OBJECT_TYPE_ID.TYPEID_DYNAMICOBJECT:
+                    case OBJECT_TYPE_ID.TYPEID_DYNAMICOBJECT:
                         DynamicObject d = new DynamicObject();
                         d.Create(guid);
-                        d.Read(gr);
-                        netLogicCore.objMgr.Add(d);
-                    break;
-                case OBJECT_TYPE_ID.TYPEID_CORPSE:
+                        GetInstance().ObjMgr().Add(d);
+                        DontDestroyOnLoad(d);
+                        break;
+                    case OBJECT_TYPE_ID.TYPEID_CORPSE:
                         Corpse c = new Corpse();
                         c.Create(guid);
-                        c.Read(gr);
-                        netLogicCore.objMgr.Add(c);
-                    break;
+                        GetInstance().ObjMgr().Add(c);
+                        DontDestroyOnLoad(c);
+                        break;
 
-                default:
-                    Log.WriteLine(netLogic.Shared.LogType.Normal, "Unknown updatetype {0}", objectTypeId);
-                    break;
-            }
+                    default:
+                        Log.WriteLine(netLogic.Shared.LogType.Normal, "Unknown updatetype {0}", objectTypeId);
+                        break;
+                }
 
-         //   MovementInfo.Read(objectTypeId, guid, gr);
-           
-            
+                Object _o = GetInstance().ObjMgr().GetObj(guid);
+
+                _o.ReadMov(gr);
+                if (_o)
+                {
+                    _o.ReadUpd(gr);
+                    if (_o.IsUnit())
+                    {
+                        CreatureQuery(_o.GetGUID(), _o.GetEntry());
+                    }
+                    else if (_o.IsGameObject())
+                    {
+                        ObjectQuery(_o.GetGUID(), _o.GetEntry());
+                    }
+
+                }
+                else
+                {
+                    Log.WriteLine(netLogic.Shared.LogType.Debug, "Unknown updatetype {0}", objectTypeId);
+                }
 
 
- 
-          
+
+
+
         }
-        
-
-
-
-
-
-
-
-        */
-
-
 
         public void ObjectQuery(GameGuid guid, UInt32 entry)
         {

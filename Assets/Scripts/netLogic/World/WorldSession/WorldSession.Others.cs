@@ -38,6 +38,16 @@ namespace netLogic
                 Log.WriteLine(LogType.Error, "Server pong'd bad sequence! Ours: {0} Theirs: {1}", Ping_Seq, Server_Seq);
         }
 
+
+        [PacketHandlerAtribute(WorldServerOpCode.SMSG_INIT_WORLD_STATES )]
+        public void HandleInitWorldStates(PacketIn packet)
+        {
+           // LevelManager.Load("DEMO_WORLD");
+        }
+
+
+
+       
         
         public void SendEmote(EmoteType EmoteType)
         {
