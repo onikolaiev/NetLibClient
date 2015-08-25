@@ -77,11 +77,7 @@ public class MassiveFlockingExample : MonoBehaviour
 
         Vector3 center = this.transform.position;
         while (--i > -1)
-        {
-            flockers[i] = SpawnRandowmFlockSpherical(center);
-            if (i < destinationPoints.Length)
-                flockers[i].destinationPoint = destinationPoints[i];
-        }
+            SpawnRandomFlockSpherical(center, flockers, i);
         //--------------- Spawn Flocks --------------------
 
 
@@ -91,40 +87,33 @@ public class MassiveFlockingExample : MonoBehaviour
         {
             ParticleSystem.Particle[] particles = new ParticleSystem.Particle[FlockingSpawnCount];
             i = FlockingSpawnCount;
-            while(--i > -1)
-            {
-                ParticleSystem.Particle particle = new ParticleSystem.Particle();
-                particle.position = flockers[i].position;
-                particle.startLifetime = float.MaxValue;
-                particle.lifetime = float.MaxValue;
-                particle.size = ParticleSize;
-                particle.color = Color.white;
-                particles[i] = particle;
-            }
+            while (--i > -1)
+                SpawnNewParticle(particles, i);
 
             flockParticleEmitter.SetParticles(particles, particles.Length);
             flockParticleEmitter.Play();
         }
         //--------------- For each Flock, spawn a Particle --------------------
 
+        InitThreadPool();
+    }
 
 
+    private void InitThreadPool()
+    {
         //--------------- Cap the number of threads --------------------
         int maxThreads = ThreadingMaxThreads;
         if (maxThreads <= 0)
             maxThreads = Mathf.Max(SystemInfo.processorCount - 1, 1);
         //--------------- Cap the number of threads --------------------
-			
-
-
-
+	
         //--------------- Spread the Flocks over multiple worker-packages --------------------
         int ThreadingPoolPackages = ThreadingPackagesPerThread * maxThreads;
 
         int flocksPerBlock = Mathf.CeilToInt((float)FlockingSpawnCount / (float)ThreadingPoolPackages);
         workerObjects = new FlockingDataWorker[ThreadingPoolPackages];
 
-        i = ThreadingPoolPackages;
+        int i = ThreadingPoolPackages;
         int startIdx = 0;
         while (--i > -1)
         {
@@ -143,6 +132,28 @@ public class MassiveFlockingExample : MonoBehaviour
         myThreadScheduler.ForceToMainThread = !MultithreadingEnabled;
         myThreadScheduler.StartASyncThreads(workerObjects, onThreadWorkComplete, null, maxThreads);
     }
+
+    private void RestartThreadPoolWork()
+    {
+        //if (tickTock && !myThreadScheduler.isBusy && workerObjects != null)
+        if (workerObjects != null)
+        {
+            //--------------- Update WorkerObjects first--------------------
+            colliders = GetColliders();
+
+            int i = workerObjects.Length;
+            while (--i > -1)
+                UpdateWorkerObjectStats(workerObjects[i]);
+            //--------------- Update WorkerObjects first --------------------
+
+            //--------------- Then restart the calculations --------------------
+            myThreadScheduler.ForceToMainThread = !MultithreadingEnabled;
+            myThreadScheduler.StartASyncThreads(workerObjects, onThreadWorkComplete, null, ThreadingMaxThreads);
+            //--------------- Then restart the calculations --------------------	
+        }
+    }
+
+
 
 
     private EnvironmentCollider[] GetColliders()
@@ -191,7 +202,7 @@ public class MassiveFlockingExample : MonoBehaviour
 
 
 
-    private FlockData SpawnRandowmFlockSpherical(Vector3 center)
+    private void SpawnRandomFlockSpherical(Vector3 center, FlockData[] storeTo, int index)
     {
         Vector3 randomDirection = new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), Random.Range(-1f, 1f)).normalized;
         Vector3 randomOrientation = new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), Random.Range(-1f, 1f)).normalized;
@@ -202,11 +213,23 @@ public class MassiveFlockingExample : MonoBehaviour
         flock.currentDirection = randomOrientation;
         flock.targetDirection = randomOrientation;
         flock.targetVelocity = Random.Range(FlockingStartVelocityMin, FlockingStartVelocityMax);
-     
-        return flock;
+
+        if (index < destinationPoints.Length)
+            flock.destinationPoint = destinationPoints[index];
+
+        storeTo[index] = flock;
     }
 
-
+    private void SpawnNewParticle(ParticleSystem.Particle[] storeTo, int index)
+    {
+        ParticleSystem.Particle particle = new ParticleSystem.Particle();
+        particle.position = flockers[index].position;
+        particle.startLifetime = float.MaxValue;
+        particle.lifetime = float.MaxValue;
+        particle.size = ParticleSize;
+        particle.color = Color.white;
+        storeTo[index] = particle;
+    }
 
 
     private void UpdateWorkerObjectStats(FlockingDataWorker flockingDataWorker)
@@ -224,37 +247,51 @@ public class MassiveFlockingExample : MonoBehaviour
         flockingDataWorker.cohesionRadius   = FlockingCohesionRadius;
         flockingDataWorker.destinationAttractRadius = FlockingDestinationAttractRadius;
         flockingDataWorker.destinationReachedRadius = FlockingDestinationReachedRadius;
-
     }
+
 
     private void onThreadWorkComplete(IThreadWorkerObject[] finishedObjects)
     {
         flockingUpdateTime = Time.realtimeSinceStartup - flockingStartTime;
         flockingStartTime = Time.realtimeSinceStartup;
 
-        //Debug.Log("onThreadWorkComplete");
-        RestartThreadPoolWork();
-    }
-
-    private void RestartThreadPoolWork()
-    {
-        //if (tickTock && !myThreadScheduler.isBusy && workerObjects != null)
-        if (workerObjects != null)
+        //--------------- Resize arrays if needed --------------------
+        if (flockers.Length != FlockingSpawnCount)
         {
-            //--------------- Update WorkerObjects first--------------------
-            colliders = GetColliders();
+            int startCount = flockers.Length;
+            System.Array.Resize(ref flockers, FlockingSpawnCount);
 
-            int i = workerObjects.Length;
-            while (--i > -1)
-                UpdateWorkerObjectStats(workerObjects[i]);
-            //--------------- Update WorkerObjects first --------------------
+            ParticleSystem.Particle[] particles = new ParticleSystem.Particle[flockParticleEmitter.particleCount];
+            flockParticleEmitter.GetParticles(particles);
+            System.Array.Resize(ref particles, FlockingSpawnCount);
 
-            //--------------- Then restart the calculations --------------------
-            myThreadScheduler.ForceToMainThread = !MultithreadingEnabled;
-            myThreadScheduler.StartASyncThreads(workerObjects, onThreadWorkComplete, null, ThreadingMaxThreads);
-            //--------------- Then restart the calculations --------------------	
+            if (startCount < FlockingSpawnCount)
+            {
+                Vector3 center = this.transform.position;
+                for (int i = startCount; i < FlockingSpawnCount; i++)
+                {
+                    SpawnRandomFlockSpherical(center, flockers, i);
+                    SpawnNewParticle(particles, i);
+                }
+            }
+            flockParticleEmitter.SetParticles(particles, particles.Length);
+
+            if (myThreadScheduler != null)
+                 Destroy(myThreadScheduler.gameObject);
+
+            //Reinit the threadpool
+            InitThreadPool();
         }
+        else
+        {
+            //Restart the threadpool
+            RestartThreadPoolWork();
+        }
+        //--------------- Resize arrays if needed --------------------
+		
     }
+
+
 
 
 

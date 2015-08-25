@@ -13,10 +13,12 @@ namespace Frankfort.Threading.Internal
                 Debug.Log("Its not allowed to put the MainThread to sleep!");
                 return;
             }
+			
+			if(!UnityActivityWatchdog.CheckUnityRunning())
+				return;
 
             Thread.Sleep((int)Mathf.Max( 1, Mathf.Round(seconds * 1000f)));
-
-            while (!MainThreadDispatcher.gameEnded && !MainThreadDispatcher.gameActive)
+            while (!UnityActivityWatchdog.CheckUnityActive())
                 Thread.Sleep(5);
         }
     }
@@ -24,7 +26,7 @@ namespace Frankfort.Threading.Internal
 
     public class ThreadWaitForNextFrame
     {
-        public ThreadWaitForNextFrame(int waitFrames = 1)
+        public ThreadWaitForNextFrame(int waitFrames = 1, int sleepTime = 5)
         {
             if (waitFrames > 0)
             {
@@ -35,10 +37,13 @@ namespace Frankfort.Threading.Internal
                 }
 
                 int startFrame = MainThreadDispatcher.currentFrame;
-                Thread.Sleep(5);
 
-                while ((!MainThreadDispatcher.gameEnded && !MainThreadDispatcher.gameActive) || startFrame + waitFrames >= MainThreadDispatcher.currentFrame)
-                    Thread.Sleep(5);
+				if(!UnityActivityWatchdog.CheckUnityRunning())
+					return;
+
+                Thread.Sleep(sleepTime);
+				while (!UnityActivityWatchdog.CheckUnityActive() || startFrame + waitFrames >= MainThreadDispatcher.currentFrame)
+                    Thread.Sleep(sleepTime);
             }
         }
     }

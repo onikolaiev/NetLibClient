@@ -91,7 +91,7 @@ namespace netLogic
     }
 
     #region Object Update
-    public class ObjectUpdate :  MonoBehaviour , IThreadWorkerObject
+    public class ObjectUpdate :  MonoBehaviour
     {
         public IDictionary<int, uint> Data { get; set; }
 

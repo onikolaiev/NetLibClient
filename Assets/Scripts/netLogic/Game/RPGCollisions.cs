@@ -39,9 +39,9 @@ public static class RPGCollisions
         // Inverse scale it by the colliders scale
         var localNorm =
             new Vector3(
-                Mathf.Clamp(local.x, -collider.extents.x, collider.extents.x),
-                Mathf.Clamp(local.y, -collider.extents.y, collider.extents.y),
-                Mathf.Clamp(local.z, -collider.extents.z, collider.extents.z)
+                Mathf.Clamp(local.x, -collider.size.x, collider.size.x),
+                Mathf.Clamp(local.y, -collider.size.y, collider.size.y),
+                Mathf.Clamp(local.z, -collider.size.z, collider.size.z)
             );
 
         // Now we undo our transformations

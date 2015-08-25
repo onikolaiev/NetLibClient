@@ -461,7 +461,7 @@ namespace netLogic
 
         public void SetSlot(uint nr) { _slot = nr; }
 
-        public UInt32 GetEntry() { return GetUInt32Value((int)UpdateFields.OBJECT_FIELD_ENTRY); }
+        //public UInt32 GetEntry() { return GetUInt32Value((int)UpdateFields.OBJECT_FIELD_ENTRY); }
 
         public UInt32 GetCount() { return GetUInt32Value((int)UpdateFields.ITEM_FIELD_STACK_COUNT); }
 

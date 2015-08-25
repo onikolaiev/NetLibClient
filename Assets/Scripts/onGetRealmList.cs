@@ -5,10 +5,10 @@ using netLogic.Constants;
 
 public class onGetRealmList : MonoBehaviour {
     public GameObject label;
-    UIPopupList inp;
+//    UIPopupList inp;
 	// Use this for initialization
 	void Start () {
-        inp = label.GetComponent<UIPopupList>();
+   //     inp = label.GetComponent<UIPopupList>();
      
       /* foreach (Realm rl in GetInstance().GetLSession.Realmlist)
        {

@@ -61,7 +61,7 @@ namespace netLogic
         public void HandlePacket(PacketIn packet)
         {
 
-            PacketHandle handle = Handles.Find(s => s.packetId == packet.PacketId);
+            PacketHandle handle = Handles.Find(s => PacketId.isEqual(s.packetId,packet.PacketId));
             if (handle != null)
             {
 
@@ -88,7 +88,7 @@ namespace netLogic
                     }
                     //Log.WriteLine(LogType.Packet, packet.ToHex());
                 }
-                catch (Exception ex)
+                catch
                 {
                 }
 

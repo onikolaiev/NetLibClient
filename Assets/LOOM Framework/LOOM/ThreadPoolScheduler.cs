@@ -32,7 +32,6 @@ namespace Frankfort.Threading
         public bool ForceToMainThread = false;
         public float WaitForSecondsTime = 0.001f; //Wait 1 ms per tick!
         
-
         public bool isBusy
         {
             get
@@ -70,6 +69,7 @@ namespace Frankfort.Threading
         private bool _shedularBusy;
         private bool _isAborted;
         private ASyncThreadWorkData workData;
+        private Thread providerThread;
         private int workObjectIndex;
         private ThreadPoolSchedulerEvent onCompleteCallBack;
         private ThreadedWorkCompleteEvent onWorkerObjectDoneCallBack;
@@ -91,18 +91,19 @@ namespace Frankfort.Threading
         {
             MainThreadWatchdog.Init();
             MainThreadDispatcher.Init();
+            UnityActivityWatchdog.Init();
         }
 
         protected virtual void OnApplicationQuit()
         {
             Debug.Log("ThreadPoolScheduler.OnApplicationQuit!");
-            AbortASyncThreads(false);    
+            AbortASyncThreads();    
         }
 
         protected virtual void OnDestroy()
-        {
-            Debug.Log("ThreadPoolScheduler.OnDestroy!");
-            AbortASyncThreads(false);
+		{
+			Debug.Log("ThreadPoolScheduler.OnDestroy!");
+            AbortASyncThreads();
         }
         #endregion
         //--------------------------------------- UNITY MONOBEHAVIOUR COMMANDS --------------------------------------
@@ -137,10 +138,6 @@ namespace Frankfort.Threading
         /// <param name="safeMode">Executes all the computations within try-catch events, logging it the message + stacktrace</param>
         public void StartASyncThreads(IThreadWorkerObject[] workerObjects, ThreadPoolSchedulerEvent onCompleteCallBack, ThreadedWorkCompleteEvent onPackageExecuted = null, int maxThreads = -1, bool safeMode = true)
         {
-            MainThreadWatchdog.Init();
-            MainThreadDispatcher.Init();
-
-
             if (_shedularBusy)
             {
                 Debug.LogError("You are trying the start a new ASync threading-process, but is still Busy!");
@@ -153,21 +150,18 @@ namespace Frankfort.Threading
                 return;
             }
 
-
-            if (!ForceToMainThread)
-            {
-                _isAborted = false;
-                this.onCompleteCallBack = onCompleteCallBack;
-                this.onWorkerObjectDoneCallBack = onPackageExecuted;
+            _isAborted = false;
+            _shedularBusy = true;
+            _providerThreadBusy = true;
+            this.onCompleteCallBack = onCompleteCallBack;
+            this.onWorkerObjectDoneCallBack = onPackageExecuted;
                 
-                _shedularBusy = true;
-                _providerThreadBusy = true;
-                StartCoroutine("WaitForCompletion");
-
+            if (!ForceToMainThread)
+            {   
                 //--------------- Start Waiting for the Provider-thread to complete --------------------
+                StartCoroutine("WaitForCompletion");
                 workData = new ASyncThreadWorkData(workerObjects, safeMode, maxThreads);
-
-                Thread providerThread = new Thread(new ThreadStart(InvokeASyncThreadPoolWork));
+                providerThread = new Thread(new ThreadStart(InvokeASyncThreadPoolWork));
                 providerThread.Start();
                 //--------------- Start Waiting for the Provider-thread to complete --------------------
             }
@@ -184,9 +178,7 @@ namespace Frankfort.Threading
 
         private IEnumerator WaitAndExecuteWorkerObjects(IThreadWorkerObject[] workerObjects)
         {
-            _shedularBusy = true;
             yield return new WaitForEndOfFrame();
-
             for (int i = 0; i < workerObjects.Length; i++)
             {
                 workerObjects[i].ExecuteThreadedWork();
@@ -196,6 +188,7 @@ namespace Frankfort.Threading
             }
 
             _shedularBusy = false;
+            _providerThreadBusy = false;
 
             if (onCompleteCallBack != null)
                 onCompleteCallBack(workerObjects);
@@ -209,12 +202,13 @@ namespace Frankfort.Threading
             if (DebugMode)
                 Debug.Log(" ----- WaitForCompletion: " + Thread.CurrentThread.ManagedThreadId);
             
-            while (true)
-            {
-                //After waiting a while, in the meantime it might have finished itself, or got aborted!
-                yield return new WaitForSeconds(WaitForSecondsTime);
-                if (_isAborted)
-                    break;
+			while (!_isAborted)
+			{
+				//After waiting a while, in the meantime it might have finished itself, or got aborted!
+				yield return new WaitForSeconds(WaitForSecondsTime);
+
+				if(_isAborted)
+					break;
 
                 //--------------- fire events while still working --------------------
                 int finishedObjectsCount = GetFinishedPackagesCount();
@@ -239,19 +233,22 @@ namespace Frankfort.Threading
                     }
                 }
                 //--------------- fire events while still working --------------------
-            }
+			}
 
-            if (DebugMode)
-                Debug.Log(" ----- Coroutine knows its done!");
+			if(!_isAborted)
+			{
+				if (DebugMode)
+	                Debug.Log(" ----- Coroutine knows its done!");
 
-            IThreadWorkerObject[] workedObjects = GetWorkerObjectsFromPackages();
-            
-            workData.Dispose();
-            workData = null;
-            _shedularBusy = false;
-            
-            if (onCompleteCallBack != null)
-                onCompleteCallBack(workedObjects);
+	            IThreadWorkerObject[] workedObjects = GetWorkerObjectsFromPackages();
+	            
+	            workData.Dispose();
+	            workData = null;
+	            _shedularBusy = false;
+	            
+	            if (onCompleteCallBack != null)
+	                onCompleteCallBack(workedObjects);
+			}
         }
         
         #endregion
@@ -271,13 +268,12 @@ namespace Frankfort.Threading
         //--------------------------------------- EXTRA COMMANDS & ACTIONS --------------------------------------
         //--------------------------------------- EXTRA COMMANDS & ACTIONS --------------------------------------
         #region EXTRA COMMANDS & ACTIONS
-  
-        
+
         /// <summary>
         /// Aborts all worker processes currently queued.
         /// </summary>
         /// <param name="sleepTillAborted">if true: Makes sure that after invoking "AbortASyncThreads" the ThreadPoolSheduler is available again, but halts the MainThread while waiting for the other threads to finish</param>
-        public void AbortASyncThreads(bool sleepTillAborted = false)
+        public void AbortASyncThreads()
         {
             if (!_providerThreadBusy)
                 return;
@@ -294,30 +290,31 @@ namespace Frankfort.Threading
                         if (package.running && !package.finishedWorking)
                             package.workerObject.AbortThreadedWork();
                     }
-
-                    Monitor.PulseAll(workData.workerPackages);
-                }
-
-                //At this point in code, _isBusy should be set to FALSE, by the providerThread;
-                if (sleepTillAborted && isBusy)
-                {
-                    while (_providerThreadBusy)
-                        Thread.Sleep(1);
                 }
             }
+			
+			if (providerThread != null && providerThread.IsAlive)
+			{
+				Debug.Log("ThreadPoolScheduler.AbortASyncThreads - Interrupt!");
+				providerThread.Interrupt();
+				providerThread.Join();
+			}
+			else
+			{
+				Debug.Log("ThreadPoolScheduler.AbortASyncThreads!");
+			}
 
-            workData = null;
-        }   
-
-
-        #endregion
+			_providerThreadBusy = false;
+		}
+		
+		#endregion
         //--------------------------------------- EXTRA COMMANDS & ACTIONS --------------------------------------
         //--------------------------------------- EXTRA COMMANDS & ACTIONS --------------------------------------
 			
 
 
 
-
+        
 
 
 
@@ -329,10 +326,13 @@ namespace Frankfort.Threading
         #region .NET THREADPOOL IMPLEMENTATION
 
         /// <summary>
+        /// This method is the work-provider-method. It makes sure the .NET threadpool has things to do...
         /// This method is NOT invoked by the mainThread, therefor is safe to use WaitHandle.WaitAll / WaitAny without halting Unity's gameThread!
         /// </summary>
         public void InvokeASyncThreadPoolWork()
         {
+            UnityActivityWatchdog.SleepOrAbortIfUnityInactive();
+
             int totalWork = workData.workerPackages.Length;
             int startBurst = Mathf.Clamp(workData.maxWorkingThreads, 1, totalWork);
 
@@ -355,17 +355,16 @@ namespace Frankfort.Threading
             if (DebugMode)
                 Debug.Log(" ----- Burst with WorkerObjects being processed!");
 
-
             //--------------- Create a new Thread to keep the Threadpool running  & cores saturated! --------------------
             workObjectIndex = startBurst; //at this point the amount of running WorkObjects/Threads is equal to the startBurst;
             while (workObjectIndex < totalWork && !_isAborted)
             {
+                UnityActivityWatchdog.SleepOrAbortIfUnityInactive();
+
                 AutoResetEvent[] startedEvents = GetStartedPackageEvents();
                 if (startedEvents.Length > 0)
                     WaitHandle.WaitAny(startedEvents);
-                //Done waiting at this point.
-
-                //Add a new WorkerObject to the pool to keep the the CPU's loaded!
+                
                 workData.workerPackages[workObjectIndex].started = true;
                 ThreadPool.QueueUserWorkItem(workData.workerPackages[workObjectIndex].ExecuteThreadWork, workObjectIndex);
                 workObjectIndex++;
@@ -375,23 +374,24 @@ namespace Frankfort.Threading
 
             if (DebugMode)
                 Debug.Log(" ----- all packages fed to the pool!");
-
-
+            
             //--------------- Wait till all are finished! --------------------
             //All WorkObjects have been set to work, but the last few Threads might still be pending!
             AutoResetEvent[] pendingEvents = GetStartedPackageEvents();
             if (pendingEvents.Length > 0)
+            {
+                UnityActivityWatchdog.SleepOrAbortIfUnityInactive();
                 WaitHandle.WaitAll(pendingEvents);
+            }
             //--------------- Wait till all are finished! --------------------
 
 
             if (DebugMode)
                 Debug.Log(" ----- PROVIDER THREAD DONE");
-                
+    
             //DONE!
             _providerThreadBusy = false;
         }
-
 
         #endregion
         //--------------------------------------- .NET THREADPOOL IMPLEMENTATION --------------------------------------

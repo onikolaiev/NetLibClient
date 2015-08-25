@@ -145,12 +145,12 @@ public class TextureBlurThreaded : MonoBehaviour
 
     private void onComplete(Pixel[] workLoad)
     {
-        Debug.Log("All workload processed: " + workLoad.Length);
+        //Debug.Log("All workload processed: " + workLoad.Length);
     }
 
     private void onPackageComplete(Pixel[] workLoadPartial, int firstIndex, int lastIndex)
     {
-        Debug.Log("partial workload processed: " + workLoadPartial.Length + ", from: " + firstIndex + ", to:  "+ lastIndex);
+        //Debug.Log("partial workload processed: " + workLoadPartial.Length + ", from: " + firstIndex + ", to:  "+ lastIndex);
     }
 
 

@@ -102,6 +102,7 @@ namespace Frankfort.Threading.Internal
             Init();
             MainThreadWatchdog.Init();
             MainThreadDispatcher.Init();
+            UnityActivityWatchdog.Init();
 
             Thread result = null;
             if(safeMode)
@@ -135,6 +136,7 @@ namespace Frankfort.Threading.Internal
             Init();
             MainThreadWatchdog.Init();
             MainThreadDispatcher.Init();
+            UnityActivityWatchdog.Init();
             
             Thread result = null;
             if (safeMode)
@@ -189,7 +191,9 @@ namespace Frankfort.Threading.Internal
         private static void CreateHelperGameObject()
         {
             GameObject helperGO = new GameObject("SingleThreadHelper");
-            helperGO.AddComponent<SingleThreadHelper>();
+            SingleThreadHelper helper = helperGO.AddComponent<SingleThreadHelper>();
+            helperGO.hideFlags = helper.hideFlags = HideFlags.HideInHierarchy | HideFlags.HideInInspector;
+            GameObject.DontDestroyOnLoad(helperGO);
             helperCreated = true;
         }
         #endregion
@@ -219,7 +223,11 @@ namespace Frankfort.Threading.Internal
             ValidateThreadStates();
             Debug.Log("Abort running Threads: " + startedThreads.Count);
             foreach (Thread thread in startedThreads)
-                thread.Abort();
+			{
+				thread.Interrupt();
+                thread.Join(100);
+			}
+			startedThreads.Clear();
         }
 
         /// <summary>
@@ -262,12 +270,7 @@ namespace Frankfort.Threading.Internal
     #region SINGLE THREAD HELPER COMPONENT
 
     public class SingleThreadHelper : MonoBehaviour
-    {
-		private void Awake()
-		{
-			GameObject.DontDestroyOnLoad(this.gameObject);	
-		}
-		
+    {	
         private void OnApplicationQuit()
         {
             SingleThreadStarter.AbortRunningThreads();

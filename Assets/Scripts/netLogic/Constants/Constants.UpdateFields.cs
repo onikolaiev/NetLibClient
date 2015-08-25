@@ -405,7 +405,7 @@ namespace netLogic.Constants
                 }
             }
 
-            CheckIntegrity();
+          //  CheckIntegrity();
         }
 
         public static void ClearUpdateFields()
@@ -420,35 +420,36 @@ namespace netLogic.Constants
         /// <summary>
         /// Check updatefields.dat integrity
         /// </summary>
-        public static void CheckIntegrity()
+       /* public static void CheckIntegrity()
         {
+            UpdateField uf;
             // program will crash there if updatefields.dat contains errors
             for (var i = 0; i < item_uf.Count; i++)
             {
-                var uf = item_uf[i];
+                 uf = item_uf[i];
             }
 
             for (var i = 0; i < unit_uf.Count; i++)
             {
-                var uf = unit_uf[i];
+                 uf = unit_uf[i];
             }
 
             for (var i = 0; i < go_uf.Count; i++)
             {
-                var uf = go_uf[i];
+                 uf = go_uf[i];
             }
 
             for (var i = 0; i < do_uf.Count; i++)
             {
-                var uf = do_uf[i];
+                 uf = do_uf[i];
             }
 
             for (var i = 0; i < corpse_uf.Count; i++)
             {
-                var uf = corpse_uf[i];
+                 uf = corpse_uf[i];
             }
-            
-        }
+            uf = new UpdateField();
+        }*/
         
        
     }

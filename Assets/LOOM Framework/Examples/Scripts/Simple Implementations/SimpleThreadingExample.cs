@@ -9,11 +9,13 @@ public class SimpleThreadingExample : MonoBehaviour
 {
 
     public int maxThreads = 2;
-    public int TestWorkerObjects = 40;
-    public int minCalculations = 10000;
-    public int maxCalculations = 10000000;
+    public int TestWorkerObjects = 4;
+    public int minCalculations = 10;
+    public int maxCalculations = 50;
     public float abortAfterSeconds = 3f;
 
+    public Thread threadA;
+    public Thread threadB;
 
     private ThreadPoolScheduler myThreadScheduler;
 
@@ -23,16 +25,13 @@ public class SimpleThreadingExample : MonoBehaviour
         myThreadScheduler = Loom.CreateThreadPoolScheduler();
 
         //--------------- Ending Single threaded routine --------------------
-        Loom.StartSingleThread(EndingSingleThreadCoroutine, System.Threading.ThreadPriority.Normal, true);
+        threadA = Loom.StartSingleThread(EndingSingleThreadCoroutine, System.Threading.ThreadPriority.Normal, true);
         //--------------- Ending Single threaded routine --------------------
 		
-
         //--------------- Continues Single threaded routine --------------------
-        Loom.StartSingleThread(ContinuesSingleThreadCoroutine, System.Threading.ThreadPriority.Normal, true);
+        threadB = Loom.StartSingleThread(ContinuesSingleThreadCoroutine, System.Threading.ThreadPriority.Normal, true);
         //--------------- Continues Single threaded routine --------------------
 		
-
-
         //--------------- Start Multithreaded packages --------------------
         int i = TestWorkerObjects;
         IThreadWorkerObject[] workerObjects = new IThreadWorkerObject[TestWorkerObjects];
@@ -41,7 +40,7 @@ public class SimpleThreadingExample : MonoBehaviour
             workerObjects[i] = new LotsOfNumbers(UnityEngine.Random.Range(minCalculations, maxCalculations));
 
         myThreadScheduler.StartASyncThreads(workerObjects, OnThreadWorkComplete, OnWorkerObjectDone, maxThreads);
-        StartCoroutine(AbortAllThreadsAfterDelay()); 
+        StartCoroutine(AbortAllThreadsAfterDelay());
         //--------------- Start Multithreaded packages --------------------	
     }
 
@@ -65,7 +64,7 @@ public class SimpleThreadingExample : MonoBehaviour
         Debug.LogWarning("About the throw an error...");
         throw new Exception("This is an safe Error and should showup in the Console");
 
-        Debug.Log("It won't get here, but the Thread will die anyways.");
+       // Debug.Log("It won't get here, but the Thread will die anyways.");
     } 
 
 
@@ -81,7 +80,7 @@ public class SimpleThreadingExample : MonoBehaviour
             Loom.WaitForSeconds(1); 
             Loom.DispatchToMainThread(() => Debug.Log("I waited atleast 1 second. Whats the current frameCount? : " + Time.frameCount), true);
         }
-        Debug.Log("It will never get here, but thats oke...");
+      //  Debug.Log("It will never get here, but thats oke...");
     } 
     //--------------- Managing a simple single Thread --------------------
 
@@ -109,6 +108,13 @@ public class SimpleThreadingExample : MonoBehaviour
         {
             Debug.Log("Terminate all worker Threads.");
             myThreadScheduler.AbortASyncThreads();
+            
+            Debug.Log("Terminate thread A & B.");
+            if (threadA != null && threadA.IsAlive)
+                threadA.Interrupt();
+
+            if (threadB != null && threadB.IsAlive)
+				threadB.Interrupt();
         }
     }
     //--------------- Managing a simple multithreaded ThreadPoolScheduler implementation --------------------
@@ -135,6 +141,11 @@ public class LotsOfNumbers : IThreadWorkerObject
         long i = maxIterations;
         while (--i > -1 && !isAborted)
         {
+            //This lightweight method checks if Unity is still active. 
+            //If your app lozes focus or gets pauzed, it will sleep the thread. 
+            //If the application quits, it will abort the thread.
+            Loom.SleepOrAbortIfUnityInactive();
+
             if (i == (maxIterations / 2))
             {
                 Loom.DispatchToMainThread(() =>

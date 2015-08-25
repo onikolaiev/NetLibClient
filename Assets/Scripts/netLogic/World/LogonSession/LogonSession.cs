@@ -165,8 +165,14 @@ namespace netLogic
             packet.Write((byte)mUsername.Length);
             packet.Write(Encoding.Default.GetBytes(mUsername)); // Name - NOT null terminated
             Send(packet);
-
-            pLoop.Start();
+            try
+            {
+                pLoop.Start();
+            }
+            catch(Exception ex)
+            {
+                throw new Exception("sdfsdfsdf"+ex.Message);
+            }
             return true;
 
         }

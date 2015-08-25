@@ -37,6 +37,14 @@ namespace netLogic
 		[PacketHandlerAtribute(WorldServerOpCode.SMSG_UPDATE_OBJECT)]
 		public void HandleObjectUpdate(PacketIn packet)
 		{
+         /*   lock (packet)
+            {
+                StartCoroutine_Auto(ObjectUpdates(packet));
+            }*/
+
+            Global.GetInstance().myScheduler.ForceToMainThread = true;
+            StartCoroutine(ParseValueAsync(packet));
+
             UInt32 UpdateBlocks = packet.ReadUInt32();
 
             for (int allBlocks = 0; allBlocks < UpdateBlocks; allBlocks++)
@@ -220,15 +228,61 @@ namespace netLogic
             //yield return true;
             return null;
         }
-        IEnumerator CreateObjectAsync(GameGuid guid)
+        IEnumerator ObjectUpdates(BinaryReader packet)
         {
-            GameObject _unit = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            _unit.AddComponent<Unit>();
-            DontDestroyOnLoad(_unit);
-            Unit u = _unit.GetComponent<Unit>();
-            u.Create(guid);
-            GetInstance().ObjMgr().Add(u);
-            yield return new WaitForSeconds(1.0F);
+
+            UInt32 UpdateBlocks = packet.ReadUInt32();
+
+            for (int allBlocks = 0; allBlocks < UpdateBlocks; allBlocks++)
+            {
+                UpdateTypes type = (UpdateTypes)packet.ReadByte();
+
+
+                switch (type)
+                {
+                    case UpdateTypes.UPDATETYPE_VALUES:
+                        ParseValues(packet);
+                        //StartCoroutine(ParseValueAsync(packet));
+                        break;
+                    case UpdateTypes.UPDATETYPE_MOVEMENT:
+                        ParseMovement(packet);
+                        //StartCoroutine(ParseMovementAsync(packet));
+                        break;
+                    case UpdateTypes.UPDATETYPE_CREATE_OBJECT:
+                    case UpdateTypes.UPDATETYPE_CREATE_OBJECT2:
+
+                        ParseCreateObjects(packet);
+                        //StartCoroutine(CreateObjectAsync(packet));
+                        break;
+                    case UpdateTypes.UPDATETYPE_OUT_OF_RANGE_OBJECTS:
+                        //ParseOutOfRangeObjects(packet);
+                        break;
+                    case UpdateTypes.UPDATETYPE_NEAR_OBJECTS:
+                        //ParseNearObjects(packet);
+                        break;
+                    default:
+                        Console.WriteLine("Unknown updatetype {0}", type);
+                        break;
+                }
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            yield return 0;
            
         }
 
@@ -251,6 +305,7 @@ namespace netLogic
 
                         GameObject _goui = GameObject.CreatePrimitive(PrimitiveType.Capsule);
                         _goui.AddComponent<Item>();
+                        
                         DontDestroyOnLoad(_goui);
                         Item item = _goui.GetComponent<Item>();
                         item.Create(guid);
@@ -274,6 +329,7 @@ namespace netLogic
                         _unit.AddComponent<Unit>();
                         DontDestroyOnLoad(_unit);
                         Unit u = _unit.GetComponent<Unit>();
+                      //  u = new Unit();
                         u.Create(guid);
                         GetInstance().ObjMgr().Add(u);
                        

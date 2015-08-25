@@ -143,7 +143,7 @@ public class RPGMotor : MonoBehaviour
 
     public void Yaw(float angles)
     {
-        target.RotateAround(Vector3.up, angles);
+        target.Rotate(Vector3.up, angles);
     }
 
     public void SetYaw(float angles)

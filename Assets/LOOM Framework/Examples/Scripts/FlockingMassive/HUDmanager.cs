@@ -12,7 +12,7 @@ public class HUDmanager : MonoBehaviour
 
 
     public int panelIdx = 0;
-    private float particleDestinationLerp = 1f;
+    private float particleDestinationLerp = 0f;
     
 
     private MassiveFlockingExample flockingManager;
@@ -71,7 +71,7 @@ public class HUDmanager : MonoBehaviour
     {
 
         GUI.color = panelIdx == 0 ? Color.grey : panelIdx == 1 ? Color.cyan : Color.yellow ;
-        if (GUI.Button(new Rect(0, 0, Screen.width, 40), panelIdx == 0 ? "Expand" : panelIdx == 1 ? "Flocking" : "Threading"))
+        if (GUI.Button(new Rect(0, 0, Screen.width, 40), panelIdx == 0 ? "Tap here to toggle modes" : panelIdx == 1 ? "Flocking settings" : "Threading settings"))
         {
             panelIdx ++;
             if (panelIdx >= 3)
@@ -148,17 +148,27 @@ public class HUDmanager : MonoBehaviour
         //Threading Settings
         else if (panelIdx == 2)
         {
-            Rect PanelRect = new Rect(0, 50, Screen.width / guiScale.x, 60);
+            Rect PanelRect = new Rect(0, 50, Screen.width / guiScale.x, 100);
             GUIUtility.ScaleAroundPivot(guiScale, Vector2.zero);
             GUI.Box(PanelRect, string.Empty);
             GUILayout.BeginArea(PanelRect);
 
-
+            GUILayout.BeginVertical();
             GUILayout.BeginHorizontal();
 
             GUI.color = flockingManager.MultithreadingEnabled ? Color.green : Color.red;
-            if (GUILayout.Button(flockingManager.MultithreadingEnabled ? "Multi Threading Enabled" : " Multi Threading Disabled", GUILayout.Width(175), GUILayout.Height(50)))
+            if (GUILayout.Button(flockingManager.MultithreadingEnabled ? "Multi Threading Enabled" : " Multi Threading Disabled", GUILayout.Height(50)))
                 flockingManager.MultithreadingEnabled = !flockingManager.MultithreadingEnabled;
+
+            GUI.color = Color.white;
+            if (GUILayout.Button("Add 500 boids", GUILayout.Height(50)))
+                flockingManager.FlockingSpawnCount += 500;
+            
+            if (GUILayout.Button("Remove 500 boids", GUILayout.Height(50)))
+                flockingManager.FlockingSpawnCount = Mathf.Max(0, flockingManager.FlockingSpawnCount - 500);
+            
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
 
             GUI.color = Color.white;
             GUILayout.Space(20);
@@ -166,12 +176,12 @@ public class HUDmanager : MonoBehaviour
             
             GUILayout.BeginVertical();
             DrawTextField("Number of Threads",  ref flockingManager.ThreadingMaxThreads);
-            //DrawTextField("Packages per Thread", ref flockingManager.ThreadingPoolPackages);
             GUILayout.EndVertical();
             
             GUI.enabled = true;
 
             GUILayout.EndHorizontal();
+            GUILayout.EndVertical();
             GUILayout.EndArea();
             GUI.matrix = mBackup;
         }
@@ -180,10 +190,12 @@ public class HUDmanager : MonoBehaviour
         //--------------- FPS Feedback --------------------
         if (flockingManager.myThreadScheduler != null)
         {
-            Rect totalBar = new Rect(20, Screen.height - 100, 350, 25);
+            Rect totalBar = new Rect(20, Screen.height - 125, 350, 25);
             DrawProgressBar(totalBar, "FLocking Behaviour Progress: ", flockingManager.myThreadScheduler.Progress);
         }
 
+        Rect particleCountRect = new Rect(20, Screen.height - 100, 350, 25);
+        GUI.Label(particleCountRect, "Number of Boids: " + flockingManager.FlockingSpawnCount);
 
         Rect flockingFpsRect = new Rect(20, Screen.height - 75, 350, 20);
         GUI.Label(flockingFpsRect, "FLocking Behaviour FPS: " + (1f / flockingManager.flockingUpdateTime));
@@ -245,12 +257,12 @@ public class HUDmanager : MonoBehaviour
         GUILayout.Label(prefix + ": " + RoundWithPrecision(value, 1).ToString(), GUILayout.Width(125));
 
         if (GUILayout.Button("-", GUILayout.Width(30), GUILayout.Height(25)))
-            value = Mathf.Clamp(value - ((maxValue - minValue) / 10f), minValue, maxValue);
+            value = Mathf.Clamp(value - ((maxValue - minValue) / 5f), minValue, maxValue);
 
         value = GUILayout.HorizontalSlider(value, minValue, maxValue);
 
         if (GUILayout.Button("+", GUILayout.Width(30), GUILayout.Height(25)))
-            value = Mathf.Clamp(value + ((maxValue - minValue) / 10f), minValue, maxValue);
+            value = Mathf.Clamp(value + ((maxValue - minValue) / 5f), minValue, maxValue);
 
         GUILayout.EndHorizontal();
     }

@@ -54,9 +54,7 @@ namespace Frankfort.Threading.Internal
         private static List<ThreadDispatchAction> dispatchActions = new List<ThreadDispatchAction>();
         private static bool helperCreated;
         public static int currentFrame = 0;
-        public static bool gameActive = true;
-        public static bool gameEnded = false;
-
+        
 
 
 
@@ -74,7 +72,9 @@ namespace Frankfort.Threading.Internal
         private static void CreateHelperGameObject()
         {
             GameObject helperGO = new GameObject("MainThreadDispatchHelper");
-            helperGO.AddComponent<MainThreadDispatchHelper>();
+            MainThreadDispatchHelper helper = helperGO.AddComponent<MainThreadDispatchHelper>();
+            helper.hideFlags = helperGO.hideFlags = HideFlags.HideInHierarchy | HideFlags.HideInInspector;
+            GameObject.DontDestroyOnLoad(helperGO);
             helperCreated = true;
         }
 
@@ -126,7 +126,7 @@ namespace Frankfort.Threading.Internal
 
 
 
-        
+
 
 
 
@@ -145,12 +145,17 @@ namespace Frankfort.Threading.Internal
         /// <param name="safeMode">Executes all the computations within try-catch events, logging it the message + stacktrace</param>
         public static void DispatchToMainThread(ThreadDispatchDelegate dispatchCall, bool waitForExecution = false, bool safeMode = true)
         {
-            ThreadDispatchAction action = new ThreadDispatchAction();
-            lock (dispatchActions)
+            if (MainThreadWatchdog.CheckIfMainThread())
             {
-                dispatchActions.Add(action);
+                if (dispatchCall != null)
+                    dispatchCall();
             }
-            action.Init(dispatchCall, waitForExecution, safeMode);
+            else
+            {
+                ThreadDispatchAction action = new ThreadDispatchAction();
+                lock (dispatchActions) { dispatchActions.Add(action); }
+                action.Init(dispatchCall, waitForExecution, safeMode);
+            }
         }
 
 
@@ -164,12 +169,17 @@ namespace Frankfort.Threading.Internal
         /// <param name="safeMode">Executes all the computations within try-catch events, logging it the message + stacktrace</param>
         public static void DispatchToMainThread(ThreadDispatchDelegateArg dispatchCall, object dispatchArgument, bool waitForExecution = false, bool safeMode = true)
         {
-            ThreadDispatchAction action = new ThreadDispatchAction();
-            lock (dispatchActions)
+            if (MainThreadWatchdog.CheckIfMainThread())
             {
-                dispatchActions.Add(action);
+                if (dispatchCall != null)
+                    dispatchCall(dispatchArgument);
             }
-            action.Init(dispatchCall, dispatchArgument, waitForExecution, safeMode);
+            else
+            {
+                ThreadDispatchAction action = new ThreadDispatchAction();
+                lock (dispatchActions) { dispatchActions.Add(action); }
+                action.Init(dispatchCall, dispatchArgument, waitForExecution, safeMode);
+            }
         }
 
 
@@ -186,13 +196,19 @@ namespace Frankfort.Threading.Internal
         /// <returns>After the MainThread has executed the "dispatchCall" (and the worker-thread has been waiting), it will return whatever the dispatchCall returns to the worker-thread</returns>
         public static object DispatchToMainThreadReturn(ThreadDispatchDelegateArgReturn dispatchCall, object dispatchArgument, bool safeMode = true)
         {
-            ThreadDispatchAction action = new ThreadDispatchAction();
-            lock (dispatchActions)
+            if (MainThreadWatchdog.CheckIfMainThread())
             {
-                dispatchActions.Add(action);
+                if (dispatchCall != null)
+                    return dispatchCall(dispatchArgument);
             }
-            action.Init(dispatchCall, dispatchArgument, safeMode); //Puts the Thread to sleep while waiting for the action to be invoked.
-            return action.dispatchExecutionResult;
+            else
+            {
+                ThreadDispatchAction action = new ThreadDispatchAction();
+                lock (dispatchActions) { dispatchActions.Add(action); }
+                action.Init(dispatchCall, dispatchArgument, safeMode); //Puts the Thread to sleep while waiting for the action to be invoked.
+                return action.dispatchExecutionResult;
+            }
+            return null;
         }
 
 
@@ -208,13 +224,19 @@ namespace Frankfort.Threading.Internal
         /// <returns>After the MainThread has executed the "dispatchCall" (and the worker-thread has been waiting), it will return whatever the dispatchCall returns to the worker-thread</returns>
         public static object DispatchToMainThreadReturn(ThreadDispatchDelegateReturn dispatchCall, bool safeMode = true)
         {
-            ThreadDispatchAction action = new ThreadDispatchAction();
-            lock (dispatchActions)
+            if (MainThreadWatchdog.CheckIfMainThread())
             {
-                dispatchActions.Add(action);
+                if (dispatchCall != null)
+                    return dispatchCall();
             }
-            action.Init(dispatchCall, safeMode); //Puts the Thread to sleep while waiting for the action to be invoked.
-            return action.dispatchExecutionResult;
+            else
+            {
+                ThreadDispatchAction action = new ThreadDispatchAction();
+                lock (dispatchActions) { dispatchActions.Add(action); }
+                action.Init(dispatchCall, safeMode); //Puts the Thread to sleep while waiting for the action to be invoked.
+                return action.dispatchExecutionResult;
+            }
+            return null;
         }
 
         #endregion
@@ -238,12 +260,12 @@ namespace Frankfort.Threading.Internal
 
     public class MainThreadDispatchHelper : MonoBehaviour
     {
-        private float WaitForSecondsTime = 0.001f;
+        private float WaitForSecondsTime = 0.005f;
 
         private void Awake()
         {
             MainThreadWatchdog.Init();
-            DontDestroyOnLoad(this.gameObject);
+            UnityActivityWatchdog.Init();
             InvokeRepeating("UpdateMainThreadDispatcher", WaitForSecondsTime, WaitForSecondsTime);
         }
 
@@ -252,15 +274,6 @@ namespace Frankfort.Threading.Internal
         {
             MainThreadDispatcher.currentFrame = Time.frameCount;
         }
-        private void OnApplicationPause(bool pause)
-        {
-            MainThreadDispatcher.gameActive = !pause;
-        }
-        private void OnApplicationQuit()
-        {
-            MainThreadDispatcher.gameEnded = true;
-        }
-
         private void UpdateMainThreadDispatcher()
         {
             MainThreadDispatcher.Update();

@@ -44,8 +44,9 @@ namespace Frankfort.Threading.Internal
         {
             Init(); //Just to be sure....
             return Thread.CurrentThread == mainThread;
-        } 
+        }
         #endregion
+
         //--------------------------------------- MANAGE MAIN THREAD VALIDATION --------------------------------------
         //--------------------------------------- MANAGE MAIN THREAD VALIDATION --------------------------------------
 			

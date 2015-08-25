@@ -243,22 +243,34 @@ namespace Frankfort.Threading.Internal
             if (workloadExecutor != null)
             {
                 for (int i = startIndex; i < endIndex && !_isAborted; i++)
+                {
+                    UnityActivityWatchdog.SleepOrAbortIfUnityInactive();
                     workloadExecutor(workLoad[i]);
+                }
             }
             else if (workloadExecutorIndexed != null)
             {
                 for (int i = startIndex; i < endIndex && !_isAborted; i++)
+                {
+                    UnityActivityWatchdog.SleepOrAbortIfUnityInactive();
                     workloadExecutorIndexed(workLoad[i], i);
+                }
             }
             else if (workloadExecutorArg != null)
             {
                 for (int i = startIndex; i < endIndex && !_isAborted; i++)
+                {
+                    UnityActivityWatchdog.SleepOrAbortIfUnityInactive();
                     workloadExecutorArg(workLoad[i], extraArgument);
+                }
             }
             else if (workloadExecutorArgIndexed != null)
             {
                 for (int i = startIndex; i < endIndex && !_isAborted; i++)
+                {
+                    UnityActivityWatchdog.SleepOrAbortIfUnityInactive();
                     workloadExecutorArgIndexed(workLoad[i], i, extraArgument);
+                }
             }
         }
 

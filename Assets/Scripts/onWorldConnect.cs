@@ -5,7 +5,7 @@ using netLogic;
 public class onWorldConnect : MonoBehaviour {
     
 	// Use this for initialization
-    UILabel plist;
+//    UILabel plist;
 	void Start () {
   /*      if (list != null)
         {

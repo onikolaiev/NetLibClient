@@ -72,8 +72,8 @@ namespace Frankfort.Threading.Internal
             {
                 if (!MainThreadWatchdog.CheckIfMainThread())
                 {
-                    while (!executed)
-                        Thread.Sleep(1);
+                    while (!executed && Loom.CheckUnityActive())
+                        Thread.Sleep(5);
                 }
                 else
                 {

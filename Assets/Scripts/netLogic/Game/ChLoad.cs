@@ -14,12 +14,12 @@ public class ChLoad : MonoBehaviour {
     public GameObject _selected;
 
     GameObject g;
-    UIGrid _ugrid;
+//    UIGrid _ugrid;
 	// Use this for initialization
 
     void Awake()
     {
-        List<CharacterListExt> chl = Global.GetInstance().GetWSession().GetCharList();
+       /* List<CharacterListExt> chl = Global.GetInstance().GetWSession().GetCharList();
         foreach (CharacterListExt _chl in chl)
         {
             _level.GetComponent<UILabel>().text = _chl.p.Level.ToString();
@@ -27,7 +27,7 @@ public class ChLoad : MonoBehaviour {
             _name.GetComponent<UILabel>().text = _chl.p.Name.ToString();
             _ugrid = _chList.GetComponent<UIGrid>();
             NGUITools.AddChild(_chList, _ch);
-        }
+        }*/
     }
 
 	void Start () {

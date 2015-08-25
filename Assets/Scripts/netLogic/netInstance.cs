@@ -15,6 +15,7 @@ using netLogic.Constants;
 using netLogic.Common;
 using UnityEngine;
 using Frankfort.Threading;
+using System.Collections;
 
 
 
@@ -27,7 +28,7 @@ namespace netLogic
         public static netInstance GetInstance()
         {
             netInstance ni = (netInstance)Loom.DispatchToMainThreadReturn(()=>{ return GameObject.Find("_start").GetComponent<netInstance>();});
-
+            
 
             return ni;
         }
@@ -36,10 +37,18 @@ namespace netLogic
         {
             Loom.DispatchToMainThread(() =>
             {
-                GameObject.Find("InfoLable").GetComponent<UILabel>().text = _str;
+        //        GameObject.Find("InfoLable").GetComponent<UILabel>().text = _str;
             });
         
         }
+
+        public static netLoop GETLGO()
+        {
+            netLoop ni = GameObject.Find("_LGO").GetComponent<netLoop>();
+            
+            return ni;
+        }
+
     
     }
 
@@ -78,17 +87,24 @@ namespace netLogic
         public GameObject login;
         public GameObject scene;
         public GameObject _instance;
+        public GameObject _LGO;
+        public GameObject _RGO;
         public string levelName = "";
         public string username;
         public string password;
        
-        UIInput passwd;
+        
 
         void Awake()
         {
             myScheduler = Loom.CreateThreadPoolScheduler("myScheduler");
             myScheduler.ForceToMainThread = true;
-            
+            _LGO = new GameObject("_LGO");
+            _LGO.AddComponent<netLoop>();
+            _RGO = new GameObject("_RGO");
+            _RGO.AddComponent<netLoop>();
+            DontDestroyOnLoad(_LGO);
+            DontDestroyOnLoad(_RGO);
             InitCore(EventHandler);
             DontDestroyOnLoad(this);
             DontDestroyOnLoad(login);
@@ -282,11 +298,15 @@ namespace netLogic
                     logonSession = null;
                     return false;
                 }
-
+                //StartCoroutine("Generate");
                 if (!logonSession.Authenticate())
                 {
                     logonSession = null;
                     return false;
+                }
+                else
+                { 
+                   // logonSession.
                 }
             }
             catch (Exception ex)
@@ -298,6 +318,20 @@ namespace netLogic
 
             return true;
         }
+
+        IEnumerator Generate()
+        {
+            UnityEngine.Debug.Log("Generator is running for ");
+            while (true)
+            {
+                UnityEngine.Debug.Log("new loop in generator");
+                yield return new WaitForSeconds(0.5f);
+                //myParent.BroadcastMessage("ChangePower",5.0f);    
+                UnityEngine.Debug.Log("we got past the 5 second wait");
+            }
+        }
+
+
 
         public void ConnectToWorldServer()
         {

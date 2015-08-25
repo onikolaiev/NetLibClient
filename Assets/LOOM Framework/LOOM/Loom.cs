@@ -389,7 +389,53 @@ public static class Loom
 
     //--------------------------------------- 4 DISPATCHER OVERLOADS --------------------------------------
     //--------------------------------------- 4 DISPATCHER OVERLOADS --------------------------------------
+    
 
+
+
+
+
+
+
+    //--------------------------------------- CHECK UNITY ACTIVITY --------------------------------------
+    //--------------------------------------- CHECK UNITY ACTIVITY --------------------------------------
+    #region CHECK UNITY ACTIVITY
+
+    /// <summary>
+    /// A easy way to check if Unity is still running, focused and not pauzed.
+    /// This comes in handy if threads keep running heavy workloads on seperate threads while IOS for example tries to puch the Application to the background.
+    /// If you are executing a giant routine on a seperate thread that takes several seconds per cycle, you might want to check regularly if unity is still active by using this check.
+    /// </summary>
+    /// <returns>Returns TRUE if Unity is still running, not pauzed and has focus. </returns>
+    public static bool CheckUnityActive()
+    {
+        return UnityActivityWatchdog.CheckUnityActive();
+    }
+
+
+
+
+    /// <summary>
+    /// !IMPORTANT! This method should be called regularly within routines that take more then half a second to complete, to make sure IOS for example is able to force an application to sleep when it looses focus or gets puched to the background.
+    /// This is a very light-weight check, internally it only needs to check two static booleans once everything is Initialized and running.
+    /// You can use this without causing any serious overhead.
+    /// Motivation: Sins Threads cannot be put asleep from the outside, it needs the be managed from within the thread itself, thats why this method was build.
+    /// 
+    /// Example:
+    /// for(int i = 0; i < 999999999; i++)
+    /// {
+    ///     Loom.SleepOrAbortIfUnityInactive(); //Prevents IOS for example of killing this app because the threads won't sleep once your unity-app is puched to the background.
+    ///     //Do something heavy that will cause this routine to run more then 0.5 seconds.
+    /// }
+    /// </summary>
+    public static void SleepOrAbortIfUnityInactive()
+    {
+        UnityActivityWatchdog.SleepOrAbortIfUnityInactive();
+    }
+    #endregion
+    //--------------------------------------- CHECK UNITY ACTIVITY --------------------------------------
+    //--------------------------------------- CHECK UNITY ACTIVITY --------------------------------------
+			
 
 
 
@@ -411,6 +457,7 @@ public static class Loom
     {
         return MainThreadWatchdog.CheckIfMainThread();
     }
+
 
     #endregion
     //--------------------------------------- MAIN THREAD WATCHDOG --------------------------------------

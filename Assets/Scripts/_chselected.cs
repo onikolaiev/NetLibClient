@@ -18,8 +18,8 @@ public class _chselected : MonoBehaviour {
 
     void OnClick()
     {
-        WorldSession _s = Global.GetInstance().GetWSession();
-        _s.SetMyPlayerEnum(_s.GetPlayerEnum(_name.GetComponent<UILabel>().text));
+   //     WorldSession _s = Global.GetInstance().GetWSession();
+    //    _s.SetMyPlayerEnum(_s.GetPlayerEnum(_name.GetComponent<UILabel>().text));
         
     }
 }

@@ -88,7 +88,7 @@ namespace netLogic
                     ObjectMap.Add(_o.GetGUID(), _o);// ...assign new one...
 
             }
-            catch (Exception ex)
+            catch
             {
                 Log.WriteLine(netLogic.Shared.LogType.Normal, "Unknown updatetype {0}", _o.GetGUID());
                    
@@ -110,34 +110,34 @@ namespace netLogic
 
                         case OBJECT_TYPE_ID.TYPEID_ITEM:
                             return (Item)o.Value;
-                            break;
+                            
 
                         case OBJECT_TYPE_ID.TYPEID_CONTAINER:
                             return (Bag)o.Value;
-                            break;
+                            
 
                         case OBJECT_TYPE_ID.TYPEID_UNIT:
                             return (Unit)o.Value;
-                            break;
+                           
 
                         case OBJECT_TYPE_ID.TYPEID_PLAYER:
                             return (Player)o.Value;
-                            break;
+                            
 
                         case OBJECT_TYPE_ID.TYPEID_GAMEOBJECT:
                             return (GO)o.Value;
-                            break;
+                            
 
                         case OBJECT_TYPE_ID.TYPEID_DYNAMICOBJECT:
                             return (DynamicObject)o.Value;
-                            break;
+                            
                         case OBJECT_TYPE_ID.TYPEID_CORPSE:
                             return (Corpse)o.Value;
-                            break;
+                            
 
                         default:
                             return new Object();
-                            break;
+                            
                     }
                 }
             }
@@ -197,7 +197,8 @@ namespace netLogic
 
         public bool ItemNonExistent(UInt32 _id)
         {
-            return _noitem.Find(x => x == _id) !=null;
+          //  return _noitem.Find(x => x == _id) !=null;
+            return true;
         }
 
         #endregion
@@ -234,7 +235,8 @@ namespace netLogic
 
         public bool CreatureNonExistent(UInt32 _id)
         {
-            return _nocreature.Find(x => x == _id) != null;
+           // return _nocreature.Find(x => x == _id) != null;
+            return true;
         }
 
         #endregion
@@ -271,7 +273,8 @@ namespace netLogic
 
         public bool GONonExistent(UInt32 _id)
         {
-            return _nogameobj.Find(x => x == _id) != null;
+            //return _nogameobj.Find(x => x == _id) != null;
+            return true;
         }
 
         #endregion
@@ -285,7 +288,8 @@ namespace netLogic
 
         public bool IsRequestedPlayerGUID(UInt32 _id)
         {
-            return _reqpnames.Find(x => x == _id) != null;
+            //return _reqpnames.Find(x => x == _id) != null;
+            return true;
         }
 
 

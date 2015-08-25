@@ -28,14 +28,17 @@ namespace netLogic.Crypt
             sha.Update(firstBuffer, 0, 64);
             sha.Update(sessionKey, 0, 40);
 
-            byte[] tempDigest = sha.Finalize();
+          //  byte[] tempDigest = sha.Finalize();
+            byte[] tempDigest = sha.HashFinal();
 
             sha = new SHA1Internal();
 
             sha.Update(secondBuffer, 0, 64);
             sha.Update(tempDigest, 0, 20);
 
-            byte[] finalKey = sha.Finalize();
+            // byte[] finalKey = sha.Finalize();
+            byte[] finalKey = sha.HashFinal();
+
 
             return finalKey;
         }
@@ -113,12 +116,12 @@ namespace netLogic.Crypt
             HashCore(data, index, length);
         }
 
-        public byte[] Finalize()
+       /* public byte[] Finalize()
         {
             return HashFinal();
-        }
+        }*/
 
-        private byte[] HashFinal()
+        public byte[] HashFinal()
         {
             byte[] hash = new byte[20];
 

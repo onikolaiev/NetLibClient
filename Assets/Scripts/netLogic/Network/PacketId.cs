@@ -21,14 +21,14 @@ namespace netLogic.Network
             RawId = (uint)id;
         }
 
-        public static bool operator ==(PacketId orig, PacketId copy)
+        public static bool isEqual(PacketId orig, PacketId copy)
         {
             return (orig.RawId == copy.RawId) && (orig.Service == copy.Service);
         }
 
-        public static bool operator !=(PacketId orig, PacketId copy)
+        public static bool IsNotEqual(PacketId orig, PacketId copy)
         {
-            return !(orig == copy);
+            return !(isEqual(orig,copy));
         }
 
         public override string ToString()

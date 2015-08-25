@@ -15,7 +15,7 @@ using System.Collections;
 
 namespace netLogic.Network
 {
-    public class PacketLoop : MonoBehaviour
+    public class PacketLoop
     {
          Thread loop;
          uint firstByteSize;
@@ -24,7 +24,9 @@ namespace netLogic.Network
          ServiceType ServiceStatus;
          LogonSession tClient;
          WorldSession wClient;
+         private IEnumerator pLoop;
          bool Connected = new bool();
+         
          
          Socket tSocket;
 
@@ -34,6 +36,7 @@ namespace netLogic.Network
              tClient = client;
              tSocket = socket;
              ServiceStatus = ServiceType.Logon;
+             
          }
 
          public PacketLoop(WorldSession client, Socket socket)
@@ -41,6 +44,7 @@ namespace netLogic.Network
              wClient = client;
              tSocket = socket;
              ServiceStatus = ServiceType.World;
+
          }
 
          public void Start()
@@ -48,17 +52,22 @@ namespace netLogic.Network
              loop = new Thread(Loop);
              loop.IsBackground = false;
              loop.Start();
-             //StartCoroutine("WaitAndPrint");
+             //pLoop = WaitAndPrint();
+             //GameObject o = new GameObject();
+             
+             //Global.GetInstance().StartCoroutine(Loop());
+             //StartCoroutine("Generate");
          }
 
          public void Stop()
          {
              if (loop != null)
-                 loop.Abort();
-            // StopCoroutine("Loop");
+                loop.Abort();
+            
+             //Global.GetInstance().StopCoroutine("Loop");
          }
 
-         void Loop()
+        void Loop()
          {
           //   StartCoroutine("WaitAndPrint");
              if (ServiceStatus == ServiceType.Logon)
@@ -80,7 +89,7 @@ namespace netLogic.Network
                      {
                          tClient.Connected = false;
                          Log.WriteLine(netLogic.Shared.LogType.Error, "Disconnected from Logon Server");
-                         return;
+                          return ;
                      }
                      while  (tSocket.Available > 0)
                      {
@@ -91,7 +100,7 @@ namespace netLogic.Network
                              tClient.HandlePacket(packet);
 
                          }
-                         catch (Exception ex)    // Server dc'd us most likely ;P
+                         catch    // Server dc'd us most likely ;P
                          {
                          }
                      }
@@ -102,7 +111,7 @@ namespace netLogic.Network
                      {
                          wClient.Connected = false;
                          Log.WriteLine(netLogic.Shared.LogType.Error, "Disconnected from World Server");
-                         return;
+                          return ;
                      }
                      try
                      {
@@ -114,25 +123,30 @@ namespace netLogic.Network
                          decryptData(data);
                          PacketIn packet = new PacketIn(data);
 
-                         Loom.DispatchToMainThread(() =>
-                         {
+                        // Loom.DispatchToMainThread(() =>
+                        // {
                              wClient.HandlePacket(packet);
-                         },false,true);
+                        // },false,true);
                          
                      }
-                     catch (Exception ex)    // Server dc'd us most likely ;P
+                     catch     // Server dc'd us most likely ;P
                      {
                      }
                  }
              }
+              return ;
          }
-         IEnumerator WaitAndPrint()
-         {
-             Log.WriteLine(netLogic.Shared.LogType.Error, "Disconnected from World Server");
-             yield return true;
-             
-             
-         }
+        IEnumerator Generate()
+        {
+            Debug.Log("Generator is running for ");
+            while (true)
+            {
+                Debug.Log("new loop in generator");
+                yield return new WaitForSeconds(0.5f);
+                //myParent.BroadcastMessage("ChangePower",5.0f);    
+                Debug.Log("we got past the 5 second wait");
+            }
+        }
 
         /* IEnumerator Loop()
          {
@@ -166,7 +180,7 @@ namespace netLogic.Network
                              tClient.HandlePacket(packet);
 
                          }
-                         catch (Exception ex)    // Server dc'd us most likely ;P
+                         catch    // Server dc'd us most likely ;P
                          {
                          }
                      }
@@ -195,7 +209,7 @@ namespace netLogic.Network
                          //    },false,false);
 
                      }
-                     catch (Exception ex)    // Server dc'd us most likely ;P
+                     catch    // Server dc'd us most likely ;P
                      {
                      }
                  }
@@ -266,7 +280,7 @@ namespace netLogic.Network
                  
              }
 
-             catch (Exception ex)
+             catch
              {
              }
 
@@ -290,7 +304,7 @@ namespace netLogic.Network
                  //int size = (SizeBytes[0] + SizeBytes[1]);
                  return size;
              }
-             catch(Exception e)
+             catch
              {
                  return 0;
              }
@@ -311,7 +325,7 @@ namespace netLogic.Network
                  uint size = (SizeBytes[0]);
                  return size;
              }
-             catch (Exception e)
+             catch 
              {
                  return 0;
              }
